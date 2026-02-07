@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaava Nutrition | Particles V2</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Russo+One&family=Saira:wght@300;400;600&family=Oswald:wght@400;700&display=swap"
+        rel="stylesheet">
+
+    <!-- CRITICAL: ERROR LOGGER -->
+    <style>
+        #debug-log {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(200, 0, 0, 0.9);
+            color: white;
+            z-index: 99999;
+            padding: 20px;
+            font-family: monospace;
+            display: none;
+            white-space: pre-wrap;
+        }
+    </style>
+    <script>
+        window.onerror = function (msg, url, line) {
+            const log = document.getElementById('debug-log');
+            if (log) {
+                log.style.display = 'block';
+                log.innerText += `ERROR: ${msg}\nLine: ${line}\n\n`;
+            }
+        };
+    </script>
+
+    <!-- SCRIPTS MOVED TO HEAD + CDN SWAP -->
+    <script src="https://unpkg.com/three@0.146.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.146.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- GSAP for Title Animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        /* [COPIED STYLES FROM ORIGINAL] */
+        :root {
+            --bg-color: #050505;
+            --bg-card: rgba(15, 20, 28, 0.9);
+            --text-main: #ffffff;
+            --text-muted: #a0b0c0;
+            --brand-blue: #29B6F6;
+            --brand-gold: #FDD835;
+            --glow-blue: rgba(41, 182, 246, 0.6);
+            --glow-gold: rgba(253, 216, 53, 0.6);
+            --shadow-soft: 0 20px 50px rgba(0, 0, 0, 0.9);
+            --nav-bg: rgba(5, 5, 5, 0.95);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --font-head: 'Russo One', sans-serif;
+            --font-body: 'Saira', sans-serif;
+            --clr-1: #00c2ff;
+            --clr-2: #33ff8c;
+            --clr-3: #ffc640;
+            --clr-4: #e54cff;
+        }
+
+        body.light-mode {
+            --bg-color: #f0f4f8;
+            --bg-card: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #4a5568;
+            --nav-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --brand-blue: #0277BD;
+            --brand-gold: #F9A825;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            transition: background 0.5s;
+        }
+
+        body.no-scroll {
+            overflow: hidden;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: var(--font-head);
+            text-transform: uppercase;
+        }
+
+        /* NAV */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: var(--nav-bg);
+            backdrop-filter: blur(15px);
+            border-bottom: 2px solid var(--brand-gold);
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-family: var(--font-head);
+            display: flex;
+            gap: 10px;
+            color: var(--text-main);
+        }
+
+        .logo svg {
+            width: 24px;
+            fill: var(--brand-gold);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .theme-toggle {
+            background: transparent;
+            border: 2px solid var(--brand-blue);
+            color: var(--brand-blue);
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        /* CANVAS */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* HERO */
+        #hero {
+            height: 150vh;
+            position: relative;
+        }
+
+        .kinetic-wrapper {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            text-align: center;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .split-text {
+            position: relative;
+            display: inline-block;
+            font-size: 8vw;
+            line-height: 1;
+            padding: 30px;
+            color: transparent;
+            user-select: none;
+        }
+
+        .text-part {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            z-index: 5;
+            transition: transform 0.1s linear;
+            background-image: radial-gradient(circle at 20% 50%, var(--clr-1), transparent 50%), radial-gradient(circle at 80% 50%, var(--clr-2), transparent 50%), radial-gradient(circle at 50% 20%, var(--clr-3), transparent 50%), radial-gradient(circle at 50% 80%, var(--clr-4), transparent 50%);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: aurora-flow 8s ease infinite alternate;
+            filter: drop-shadow(0 0 10px rgba(41, 182, 246, 0.3));
+        }
+
+        @keyframes aurora-flow {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+
+        .text-part:nth-child(1) {
+            top: 30px;
+            clip-path: polygon(0 0, 100% 0, 100% 50.5%, 0 50.5%);
+        }
+
+        .text-part:nth-child(2) {
+            top: 30px;
+            clip-path: polygon(0 50.5%, 100% 50.5%, 100% 100%, 0 100%);
+        }
+
+        .reveal-part {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            transform: translateY(-50%) scaleY(0);
+            background: var(--brand-gold);
+            color: #000;
+            font-size: 0.25em;
+            letter-spacing: 0.5em;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            box-shadow: 0 0 40px var(--brand-gold);
+            font-weight: 700;
+        }
+
+        .hero-content {
+            position: absolute;
+            bottom: 15%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            text-align: center;
+            width: 90%;
+            max-width: 800px;
+            transition: 0.8s;
+            z-index: 10;
+        }
+
+        .hero-content.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-20px);
+        }
+
+        .cta-btn {
+            padding: 20px 60px;
+            border: 2px solid var(--brand-gold);
+            color: var(--brand-gold);
+            text-decoration: none;
+            text-transform: uppercase;
+            display: inline-block;
+            clip-path: polygon(10% 0, 100% 0, 100% 80%, 90% 100%, 0 100%, 0 20%);
+            font-weight: 700;
+            transition: 0.3s;
+        }
+
+        .cta-btn:hover {
+            background: var(--brand-gold);
+            color: #000;
+            box-shadow: 0 0 40px var(--glow-gold);
+        }
+
+        /* SECTIONS */
+        section {
+            padding: 120px 10%;
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-header h2 {
+            font-size: 3.5rem;
+            display: inline-block;
+            position: relative;
+            color: var(--text-main);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 50px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 15px;
+            padding: 50px 35px;
+            border: 1px solid var(--card-border);
+            border-top: 4px solid var(--brand-blue);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .card-icon {
+            font-size: 3.5rem;
+            margin-bottom: 25px;
+            color: #000;
+            background: var(--brand-gold);
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+        }
+
+        .scroll-3d {
+            opacity: 0;
+            transform: perspective(1000px) translate3d(0, 50px, -50px) rotateX(20deg);
+            transition: 0.8s;
+        }
+
+        .scroll-3d.visible {
+            opacity: 1;
+            transform: perspective(1000px) translate3d(0, 0, 0) rotateX(0deg);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--bg-card);
+            padding: 100px 10%;
+            text-align: center;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+
+<body class="dark-mode">
+
+    <div id="debug-log">DEBUG LOG ACTIVATED<br></div>
+    <div id="canvas-container"></div>
+
+    <nav>
+        <div class="logo">
+            <svg viewBox="0 0 24 24">
+                <path
+                    d="M12 2L2 7v6c0 5.5 3.8 10.4 10 12 6.2-1.6 10-6.5 10-12V7l-10-5zm0 10.9v7c-3.1-1.1-5.6-3.8-6.6-6.9H12v-.1z" />
+            </svg>
+            <span>KAAVA</span>
+        </div>
+        <div class="nav-links">
+            <a href="#products">Products</a>
+            <a href="#rnd">R&D</a>
+            <a href="#contact">Contact</a>
+            <button class="theme-toggle" onclick="toggleTheme()">Mode</button>
+        </div>
+    </nav>
+
+    <section id="hero">
+        <div class="kinetic-wrapper" id="kinetic-wrapper">
+            <h2 class="split-text">
+                KAAVA NUTRITION
+                <span class="text-part">KAAVA NUTRITION</span>
+                <span class="text-part">KAAVA NUTRITION</span>
+                <span class="reveal-part">SPORTS NUTRITION REDEFINED</span>
+            </h2>
+        </div>
+        <div class="hero-content" id="hero-fade">
+            <a href="#products" class="cta-btn">View Products</a>
+        </div>
+    </section>
+
+    <!-- CONTENT SECTIONS (Simulated for layout check) -->
+    <section id="products">
+        <div class="section-header scroll-3d">
+            <h2>OUR PRODUCTS</h2>
+        </div>
+        <div class="products-grid">
+            <div class="card scroll-3d">
+                <div class="card-icon">⚡</div>
+                <h3>Energy Mixes</h3>
+                <p>Power your workout.</p>
+            </div>
+            <div class="card scroll-3d">
+                <div class="card-icon">🥜</div>
+                <h3>Nut Butters</h3>
+                <p>Organic repair.</p>
+            </div>
+            <div class="card scroll-3d">
+                <div class="card-icon">🛡️</div>
+                <h3>Muscle Repair</h3>
+                <p>Deep recovery.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div style="font-size: 2rem; color: var(--brand-gold); margin-bottom:20px;">KAAVA NUTRITION</div>
+        <p>© 2024</p>
+    </footer>
+
+    <script>
+        // --- LOGIC START ---
+
+        // 1. Theme Toggle
+        let isLight = false;
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            isLight = !isLight;
+            if (window.updateSceneColors) window.updateSceneColors(isLight);
+        }
+
+        // 2. Scroll Animation for Title
+        const kineticWrapper = document.getElementById('kinetic-wrapper');
+        const spanTop = document.querySelector('.text-part:nth-child(1)');
+        const spanBottom = document.querySelector('.text-part:nth-child(2)');
+        const spanReveal = document.querySelector('.reveal-part');
+        const heroFade = document.getElementById('hero-fade');
+
+        // GSAP Timeline for Intro
+        try {
+            const tl = gsap.timeline({ defaults: { ease: "power4.out" } });
+            tl.to('.reveal-part', { scaleY: 1, duration: 1, delay: 0.5 })
+                .to('.text-part', { y: 0, duration: 1.5 }, "-=0.5")
+                .to('.reveal-part', { scaleY: 0, duration: 0.8 }, "-=1")
+                .to('.hero-content', { opacity: 1, y: -20, duration: 1 }, "-=0.5");
+        } catch (e) {
+            console.warn("GSAP failed", e);
+        }
+
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            const windowH = window.innerHeight;
+            let progress = Math.min(scrollY / (windowH * 0.4), 1);
+            const separation = progress * 60;
+
+            spanTop.style.transform = `translateY(-${separation}px)`;
+            spanBottom.style.transform = `translateY(${separation}px)`;
+
+            // Fade out title
+            let opacity = 1 - (scrollY / (windowH * 0.6));
+            kineticWrapper.style.opacity = Math.max(0, opacity);
+            kineticWrapper.style.visibility = opacity <= 0 ? 'hidden' : 'visible';
+
+            if (progress > 0.8) heroFade.classList.add('active');
+        });
+
+        // 3. Three.js Logic (GOLDEN PARTICLES)
+        const initThree = () => {
+            try {
+                if (typeof THREE === 'undefined') throw new Error("Three.js not loaded.");
+
+                const container = document.getElementById('canvas-container');
+                const scene = new THREE.Scene();
+                scene.fog = new THREE.FogExp2(0x050505, 0.025);
+
+                const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                camera.position.z = 12;
+
+                const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                container.appendChild(renderer.domElement);
+
+                // Lights
+                const ambient = new THREE.AmbientLight(0xffffff, 0.5);
+                scene.add(ambient);
+                const spot1 = new THREE.SpotLight(0x29B6F6, 2);
+                spot1.position.set(-10, 10, 10);
+                scene.add(spot1);
+                const spot2 = new THREE.SpotLight(0xFDD835, 2);
+                spot2.position.set(10, 10, 10);
+                scene.add(spot2);
+
+                // --- PARTICLES ---
+                const particleMat = new THREE.PointsMaterial({
+                    color: 0xFDD835,
+                    size: 0.15,
+                    transparent: true,
+                    opacity: 0.8,
+                    blending: THREE.AdditiveBlending
+                });
+
+                // Fallback / Placeholder Creator
+                const createParticleShape = (type) => {
+                    const group = new THREE.Group();
+                    // Dense capsule for body
+                    const bodyWin = new THREE.CapsuleGeometry(0.5, 1.5, 10, 20);
+                    const body = new THREE.Points(bodyWin, particleMat);
+                    body.position.y = 1;
+                    group.add(body);
+
+                    // Sphere for head
+                    const headWin = new THREE.SphereGeometry(0.4, 20, 20);
+                    const head = new THREE.Points(headWin, particleMat);
+                    head.position.y = 2.2;
+                    group.add(head);
+
+                    if (type === 'cricket') {
+                        const batWin = new THREE.BoxGeometry(0.3, 1.2, 0.1, 5, 20, 2);
+                        const bat = new THREE.Points(batWin, particleMat);
+                        bat.position.set(0.6, 0.8, 0.3);
+                        bat.rotation.z = -0.2;
+                        group.add(bat);
+                    }
+                    return group;
+                };
+
+                let sprinter = createParticleShape('sprinter');
+                sprinter.position.set(-6, -3, 0);
+                sprinter.rotation.y = Math.PI / 4;
+                scene.add(sprinter);
+
+                let cricket = createParticleShape('cricket');
+                cricket.position.set(6, -3, 0);
+                cricket.rotation.y = -Math.PI / 4;
+                scene.add(cricket);
+
+                // Stars
+                const starGeo = new THREE.BufferGeometry();
+                const count = 1500;
+                const positions = new Float32Array(count * 3);
+                for (let i = 0; i < count * 3; i++) positions[i] = (Math.random() - 0.5) * 100;
+                starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                const starMat = new THREE.PointsMaterial({ size: 0.05, color: 0xffffff, transparent: true, opacity: 0.5 });
+                const stars = new THREE.Points(starGeo, starMat);
+                scene.add(stars);
+
+                // Model Loader
+                const loader = new THREE.GLTFLoader();
+                const loadModel = (url, targetObj) => {
+                    loader.load(url, (gltf) => {
+                        // Replace fallback with loaded points
+                        const newGroup = new THREE.Group();
+                        gltf.scene.traverse(c => {
+                            if (c.isMesh) {
+                                const pts = new THREE.Points(c.geometry, particleMat);
+                                newGroup.add(pts);
+                            }
+                        });
+                        newGroup.position.copy(targetObj.position);
+                        newGroup.rotation.copy(targetObj.rotation);
+                        newGroup.scale.set(3, 3, 3);
+
+                        scene.remove(targetObj);
+                        scene.add(newGroup);
+
+                        // Update ref
+                        if (targetObj === sprinter) sprinter = newGroup;
+                        else cricket = newGroup;
+                    }, undefined, (e) => console.warn("Model unavailable, keeping particles fallback"));
+                };
+
+                loadModel('3d models/sprinter 3d model.glb', sprinter);
+                loadModel('3d models/cricket player 3d model.glb', cricket);
+
+                // Animation Loop
+                const animate = () => {
+                    requestAnimationFrame(animate);
+                    const t = Date.now() * 0.001;
+                    if (sprinter) sprinter.position.y = -3 + Math.sin(t) * 0.1;
+                    if (cricket) cricket.position.y = -3 + Math.sin(t + 1) * 0.1;
+                    stars.rotation.z += 0.0005;
+                    renderer.render(scene, camera);
+                };
+                animate();
+
+                // Resize
+                window.addEventListener('resize', () => {
+                    camera.aspect = window.innerWidth / window.innerHeight;
+                    camera.updateProjectionMatrix();
+                    renderer.setSize(window.innerWidth, window.innerHeight);
+                });
+
+                window.updateSceneColors = (light) => {
+                    scene.fog.color.setHex(light ? 0xf0f4f8 : 0x050505);
+                };
+
+            } catch (err) {
+                // Trigger the on-screen logger
+                throw err;
+            }
+        };
+
+        initThree(); // Run immediately since scripts are in head (or wait for load)
+
+        // INTERSECTION OBSERVER
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        });
+        document.querySelectorAll('.scroll-3d').forEach(el => observer.observe(el));
+
+    </script>
+</body>
+
+</html>

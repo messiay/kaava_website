@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>3D Gold Scroll Morph</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #050505;
+            color: white;
+            font-family: monospace;
+            overflow-x: hidden;
+            /* Prevent horizontal scroll */
+        }
+
+        /* 
+           SCROLL CONTAINER 
+           This creates the scrollable height. 
+           5 models -> 4 transitions. Let's make it plenty tall for smooth scrolling.
+           500vh means 5 full screen heights.
+        */
+        #scroll-container {
+            height: 600vh;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        /* 
+           CANVAS 
+           Fixed in background 
+        */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        /* OVERLAY UI */
+        #ui-layer {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 20;
+            pointer-events: none;
+            /* Let clicks pass through to scroll */
+        }
+
+        .loading-text {
+            color: #FDD835;
+            font-size: 1.2rem;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .scroll-hint {
+            position: fixed;
+            bottom: 30px;
+            width: 100%;
+            text-align: center;
+            color: #FDD835;
+            animation: bounce 2s infinite;
+            z-index: 20;
+            pointer-events: none;
+            font-size: 1.5rem;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            20%,
+            50%,
+            80%,
+            100% {
+                transform: translateY(0);
+            }
+
+            40% {
+                transform: translateY(-10px);
+            }
+
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+    <!-- Dependencies -->
+    <script src="https://unpkg.com/three@0.146.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.146.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+</head>
+
+<body>
+
+    <!-- Scrollable Height -->
+    <div id="scroll-container"></div>
+
+    <!-- 3D Scene fixed behind -->
+    <div id="canvas-container"></div>
+
+    <!-- UI Overlay -->
+    <div id="ui-layer">
+        <div id="status" class="loading-text">Initializing Gold Particles...</div>
+    </div>
+
+    <div class="scroll-hint">SCROLL TO MORPH</div>
+
+    <script>
+        // CONFIG
+        const CONFIG = {
+            particleCount: 60000,           // Increased density for "Grainy" look 
+            particleSize: 0.012,            // Very fine grains
+
+            color: 0xFE9D00,
+            loadScale: 5.0,
+            modelList: [
+                'sprinter 3d model.glb',
+                'swimming figure 3d model.glb',
+                'soccer player 3d model.glb',
+                'cricket player 3d model.glb',
+                'tennis player 3d model.glb'
+            ],
+            cameraZ: 6
+        };
+
+        const statusLabel = document.getElementById('status');
+
+        // --- SCENE SETUP ---
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.04);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(2, 0.5, 6);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // --- PARTICLE MATERIAL ---
+        const particleMat = new THREE.PointsMaterial({
+            color: CONFIG.color,
+            size: CONFIG.particleSize,  // Crisp small points
+            map: null,                  // NO TEXTURE (Square points = "Particles itself")
+            sizeAttenuation: true,
+            transparent: true,
+            opacity: 0.9,
+            blending: THREE.NormalBlending,
+            depthWrite: true
+        });
+
+        // --- GLOBAL PARTICLE SYSTEM ---
+        let particlesMesh = null;
+        const modelSnapshots = [];
+
+        // --- LOADING LOGIC ---
+        const loader = new THREE.GLTFLoader();
+        const modelsPath = '3d models/';
+
+        function extractPointsFromGltf(gltf, filename) {
+            let extractedPos = [];
+
+            gltf.scene.traverse((child) => {
+                if (child.isMesh) {
+                    child.geometry.scale(CONFIG.loadScale, CONFIG.loadScale, CONFIG.loadScale);
+                    child.geometry.center();
+
+                    // CUSTOM ROTATION PER MODEL
+                    // Most need profile view (-45 deg).
+                    // Swimming likely needs 90 deg (sideways).
+                    if (filename.includes('swimming')) {
+                        // Swimming usually flat properties
+                        child.geometry.rotateY(Math.PI / 2); // 90 deg 
+                        child.geometry.rotateX(Math.PI / 8); // Tilt slightly
+                    } else if (filename.includes('sprinter')) {
+                        child.geometry.rotateY(-Math.PI / 3);
+                    } else {
+                        // Default profile
+                        child.geometry.rotateY(-Math.PI / 4.5);
+                    }
+
+                    const posAttr = child.geometry.attributes.position;
+                    const count = posAttr.count;
+
+                    for (let i = 0; i < count; i++) {
+                        extractedPos.push(
+                            posAttr.getX(i),
+                            posAttr.getY(i),
+                            posAttr.getZ(i)
+                        );
+                    }
+                }
+            });
+            return extractedPos;
+        }
+
+        // VOXEL SAMPLER: Enforces minimum distance between particles
+        // This solves "clumping" by treating the space as a grid and keeping only 1 point per cell.
+        function voxelSample(rawPositions, voxelSize) {
+            const voxelMap = new Map();
+            const result = [];
+
+            for (let i = 0; i < rawPositions.length; i += 3) {
+                const x = rawPositions[i];
+                const y = rawPositions[i + 1];
+                const z = rawPositions[i + 2];
+
+                // Quantize position to grid
+                const kx = Math.round(x / voxelSize);
+                const ky = Math.round(y / voxelSize);
+                const kz = Math.round(z / voxelSize);
+
+                const key = `${kx},${ky},${kz}`;
+
+                // If this voxel cell is empty, fill it
+                if (!voxelMap.has(key)) {
+                    voxelMap.set(key, true);
+                    result.push(x, y, z);
+                }
+            }
+            return new Float32Array(result);
+        }
+
+        // Helper to Shuffle Array (Fisher-Yates)
+        function shuffleArray(array) {
+            for (let i = array.length / 3 - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+
+                // Swap whole point (3 floats)
+                const ix = i * 3;
+                const jx = j * 3;
+
+                const tx = array[ix]; array[ix] = array[jx]; array[jx] = tx;
+                const ty = array[ix + 1]; array[ix + 1] = array[jx + 1]; array[jx + 1] = ty;
+                const tz = array[ix + 2]; array[ix + 2] = array[jx + 2]; array[jx + 2] = tz;
+            }
+            return array;
+        }
+
+        // IMPROVED SAMPLING PIPELINE: 
+        // 1. Voxel Grid Filter (Uniformity) -> 2. Shuffle (Randomize order) -> 3. Fill Target Count
+        function normalizeToFixedCount(rawPositions, targetCount) {
+
+            // Step 1: Voxel Filter to remove clumps (high-poly areas)
+            // 0.015 is finer than before (0.03), allowing more "grain" detail
+            let uniquePoints = voxelSample(rawPositions, 0.015);
+
+            // Step 2: Shuffle to avoid any grid-scanning bias
+            uniquePoints = shuffleArray(uniquePoints);
+
+            const result = new Float32Array(targetCount * 3);
+            const sourcePoints = uniquePoints.length > 0 ? uniquePoints : rawPositions;
+            const totalPoints = sourcePoints.length / 3;
+
+            if (totalPoints === 0) return result;
+
+            for (let i = 0; i < targetCount; i++) {
+                // Step 3: Round-robin fill
+                const srcIndex = i % totalPoints;
+
+                result[i * 3 + 0] = sourcePoints[srcIndex * 3 + 0];
+                result[i * 3 + 1] = sourcePoints[srcIndex * 3 + 1];
+                result[i * 3 + 2] = sourcePoints[srcIndex * 3 + 2];
+            }
+            return result;
+        }
+
+        async function loadAllModels() {
+            try {
+                // Check Protocol
+                if (window.location.protocol === 'file:') {
+                    const msg = "⚠️ SECURITY BLOCKED: Browsers cannot load 3D files directly from the desktop (file://). Please run a local server (e.g., 'python -m http.server').";
+                    statusLabel.innerText = msg;
+                    statusLabel.style.color = '#ff4444';
+                    statusLabel.style.background = 'rgba(0,0,0,0.9)';
+                    alert(msg);
+                    return;
+                }
+
+                // 1. Load all GLBs in parallel
+                statusLabel.innerText = "Loading 3D Models (0/5)...";
+
+                const loadPromises = CONFIG.modelList.map((filename, index) => {
+                    // FIX: URL Encode spaces in filenames
+                    const safeFilename = encodeURIComponent(filename);
+                    const url = modelsPath + safeFilename;
+
+                    return new Promise((resolve, reject) => {
+                        loader.load(url, (gltf) => {
+                            statusLabel.innerText = `Loaded ${index + 1}/${CONFIG.modelList.length}: ${filename}`;
+                            resolve(gltf);
+                        }, undefined, (err) => {
+                            console.error(`Failed to load ${filename} at ${url}`, err);
+                            resolve(null); // Resolve null to track failure
+                        });
+                    });
+                });
+
+                const loadedGLTFs = await Promise.all(loadPromises);
+
+                let successCount = 0;
+
+                // 2. Process Data
+                statusLabel.innerText = "Processing Geometry...";
+
+                loadedGLTFs.forEach((gltf, i) => {
+                    const filename = CONFIG.modelList[i]; // Need filename for rotation check
+
+                    if (!gltf) {
+                        // Create a fallback box if load failed so we see SOMETHING but know it failed
+                        const boxPts = [];
+                        // Create a visibly broken geometric shape (an X or Cube)
+                        for (let k = 0; k < CONFIG.particleCount; k++) {
+                            boxPts.push((Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5);
+                        }
+                        modelSnapshots.push(normalizeToFixedCount(boxPts, CONFIG.particleCount));
+                        console.warn(`Used fallback for model ${i}`);
+                        return;
+                    }
+                    successCount++;
+                    // Pass filename to extraction
+                    const rawPts = extractPointsFromGltf(gltf, filename);
+                    const normalizedObj = normalizeToFixedCount(rawPts, CONFIG.particleCount);
+                    modelSnapshots.push(normalizedObj);
+                });
+
+                if (successCount === 0) {
+                    statusLabel.innerText = "❌ FAILED TO LOAD ANY MODELS. Check Console (F12).";
+                    statusLabel.style.color = 'red';
+                    return;
+                }
+
+                // 3. Init Particle System
+                createMainParticleSystem();
+                statusLabel.innerText = "Scroll to Morph";
+
+                // Hide status after a moment
+                setTimeout(() => {
+                    statusLabel.style.opacity = 0; // Fade out completely
+                }, 2000);
+
+            } catch (error) {
+                console.error("Critical Load Error:", error);
+                statusLabel.innerText = "Error Loading Models: " + error.message;
+            }
+        }
+
+        // --- PARTICLE SYSTEM CREATION ---
+        function createMainParticleSystem() {
+            const geometry = new THREE.BufferGeometry();
+
+            // Start with position of the FIRST model
+            const startPositions = new Float32Array(CONFIG.particleCount * 3);
+            if (modelSnapshots.length > 0) {
+                startPositions.set(modelSnapshots[0]);
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(startPositions, 3));
+
+            particlesMesh = new THREE.Points(geometry, particleMat);
+            scene.add(particlesMesh);
+
+            // Start Loop
+            animate();
+        }
+
+        // EASING FUNCTION: Smooth start/end for Morph
+        function easeInOutCubic(x) {
+            return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+        }
+
+        // --- MORPH LOGIC AND PHYSICS ---
+        function updateMorph(scrollPercent) {
+            if (!particlesMesh || modelSnapshots.length < 2) return;
+
+            const numSegments = modelSnapshots.length - 1;
+            const floatIndex = scrollPercent * numSegments;
+
+            let currentIndex = Math.floor(floatIndex);
+            let nextIndex = currentIndex + 1;
+
+            if (currentIndex >= numSegments) {
+                currentIndex = numSegments - 1;
+                nextIndex = numSegments;
+            }
+            if (currentIndex < 0) currentIndex = 0;
+
+            // Raw Linear Factor (0 to 1)
+            let linearFactor = floatIndex - currentIndex;
+
+            // Apply Easing for Fluidity (Slow start -> Fast middle -> Slow end)
+            const mixFactor = easeInOutCubic(linearFactor);
+
+            const sourcePos = modelSnapshots[currentIndex];
+            const targetPos = modelSnapshots[nextIndex];
+
+            const currentPosAttr = particlesMesh.geometry.attributes.position;
+            const currentArr = currentPosAttr.array;
+
+            // Fluid Wave Effect
+            // Particles will "flow" rather than just buzzing
+            const flyAmp = Math.sin(mixFactor * Math.PI) * 1.5;
+
+            for (let i = 0; i < CONFIG.particleCount; i++) {
+                const ix = i * 3;
+                const iy = i * 3 + 1;
+                const iz = i * 3 + 2;
+
+                const ax = sourcePos[ix];
+                const ay = sourcePos[iy];
+                const az = sourcePos[iz];
+
+                const bx = targetPos[ix];
+                const by = targetPos[iy];
+                const bz = targetPos[iz];
+
+                // Base Interpolation
+                let x = ax + (bx - ax) * mixFactor;
+                let y = ay + (by - ay) * mixFactor;
+                let z = az + (bz - az) * mixFactor;
+
+                // Add Coherent Fluid Noise
+                // Instead of random swirl, we use position-based waves
+                if (flyAmp > 0.01) {
+                    // Wave based on Y position (like wind blowing)
+                    const wave = Math.sin(y * 2.0 + mixFactor * Math.PI) * flyAmp;
+
+                    x += wave * 0.3; // Sideways drift
+                    z += Math.cos(y * 2.0) * flyAmp * 0.3; // Depth ripple
+                    y += Math.abs(wave) * 0.2; // Slight lift
+                }
+
+                currentArr[ix] = x;
+                currentArr[iy] = y;
+                currentArr[iz] = z;
+            }
+
+            currentPosAttr.needsUpdate = true;
+
+            // Rotation
+            particlesMesh.rotation.y = scrollPercent * Math.PI * 0.5;
+        }
+
+
+        // --- MAIN LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Read Scroll
+            // We use documentElement.scrollTop / (scrollHeight - clientHeight)
+            const doc = document.documentElement;
+            const scrollTop = window.pageYOffset || doc.scrollTop;
+            const scrollHeight = doc.scrollHeight || document.body.scrollHeight;
+            const clientHeight = window.innerHeight;
+
+            let percent = 0;
+            if (scrollHeight > clientHeight) {
+                percent = scrollTop / (scrollHeight - clientHeight);
+            }
+            // Clamp 0..1
+            percent = Math.min(Math.max(percent, 0), 1);
+
+            // Update Morph
+            updateMorph(percent);
+
+            renderer.render(scene, camera);
+        }
+
+        // --- RESIZE ---
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- INIT ---
+        loadAllModels();
+
+    </script>
+</body>
+
+</html>

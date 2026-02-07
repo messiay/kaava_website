@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Test</title>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            color: #fff;
+            font-family: sans-serif;
+            overflow: hidden;
+        }
+
+        #log {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="log">Initializing...</div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r146/three.min.js"></script>
+    <script>
+        const log = document.getElementById('log');
+        function print(msg) { log.innerHTML += '<br>' + msg; }
+
+        window.onerror = function (msg, url, line) {
+            print("ERROR: " + msg + " (Line " + line + ")");
+        };
+
+        try {
+            print("Three.js logic starting...");
+            if (typeof THREE === 'undefined') throw new Error("THREE is not loaded!");
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            print("Renderer attached.");
+
+            // GOLDEN PARTICLES
+            const geometry = new THREE.SphereGeometry(2, 32, 32);
+            const material = new THREE.PointsMaterial({
+                color: 0xFDD835, // Gold
+                size: 0.1,
+                sizeAttenuation: true
+            });
+            const sphere = new THREE.Points(geometry, material);
+            scene.add(sphere);
+            print("Particle sphere added.");
+
+            camera.position.z = 5;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                sphere.rotation.x += 0.01;
+                sphere.rotation.y += 0.01;
+                renderer.render(scene, camera);
+            }
+            animate();
+            print("Animation loop running.");
+
+        } catch (e) {
+            print("CRITICAL EXCEPTION: " + e.message);
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,143 @@
+<!-- KAAVA ADVANTAGE SECTION -->
+<section id="advantage" style="padding: 100px 5%; position: relative; z-index: 10;">
+    <div class="section-header scroll-3d">
+        <h2>THE KAAVA ADVANTAGE</h2>
+        <p style="color: var(--text-muted); margin-top: 10px;">Why nature beats the lab every time.</p>
+    </div>
+
+    <style>
+        .advantage-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .adv-card {
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid var(--card-border);
+            background: rgba(255, 255, 255, 0.02);
+            transition: transform 0.3s ease;
+        }
+
+        .adv-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .adv-card.synthetic {
+            border-color: #444;
+            color: #888;
+        }
+
+        .adv-card.synthetic h3 {
+            color: #aaa;
+        }
+
+        .adv-card.kaava {
+            border-color: var(--brand-gold);
+            background: linear-gradient(145deg, rgba(255, 215, 0, 0.05), transparent);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.05);
+        }
+
+        .adv-card.kaava h3 {
+            color: var(--brand-gold);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .stat-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 25px 0;
+            font-family: monospace;
+            font-size: 1.1rem;
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            position: relative;
+        }
+
+        /* Synthetic Bar */
+        .bar-fill.synthetic-fill {
+            width: 15%;
+            background: #555;
+        }
+
+        /* Kaava Bar */
+        .bar-fill.kaava-fill {
+            width: 0%;
+            /* Animate to 95% */
+            background: var(--brand-gold);
+            box-shadow: 0 0 15px var(--brand-gold);
+            animation: fillBar 2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes fillBar {
+            to {
+                width: 95%;
+            }
+        }
+
+        .adv-desc {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--text-main);
+            opacity: 0.8;
+        }
+
+        .adv-card.synthetic .adv-desc {
+            opacity: 0.6;
+        }
+
+        @media(max-width: 768px) {
+            .advantage-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+
+    <div class="advantage-grid">
+        <!-- Dull Side -->
+        <div class="adv-card synthetic scroll-3d">
+            <h3>🧪 Synthetic Supplements</h3>
+            <div class="stat-row">
+                <span>Bio-Availability</span>
+                <div class="bar-container">
+                    <div class="bar-fill synthetic-fill"></div>
+                </div>
+                <span>15%</span>
+            </div>
+            <p class="adv-desc">Isolated chemical chains. Often derived from coal tar or petroleum byproducts. Hard to
+                digest and frequently rejected by the body as foreign matter.</p>
+        </div>
+
+        <!-- Bright Side -->
+        <div class="adv-card kaava scroll-3d">
+            <h3>🌿 Kaava Bio-Active</h3>
+            <div class="stat-row">
+                <span>Bio-Availability</span>
+                <div class="bar-container">
+                    <div class="bar-fill kaava-fill"></div>
+                </div>
+                <span>95%</span>
+            </div>
+            <p class="adv-desc">Whole-food matrix. Our ingredients retain their natural co-factors and enzymes, meaning
+                your cells instantly recognize and absorb them for maximum impact.</p>
+        </div>
+    </div>
+</section>
