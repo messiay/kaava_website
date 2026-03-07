@@ -52,11 +52,11 @@
 
         /* Light Mode Overrides */
         body.light-mode {
-            --bg-color: #fff9ec;
-            --bg-card: #ffffff;
+            --bg-color: #e4e1d9;
+            --bg-card: #f2f0ea;
             --text-main: #2d3748;
             --text-muted: #4a5568;
-            --nav-bg: rgba(255, 249, 236, 0.95);
+            --nav-bg: rgba(228, 225, 217, 0.95);
             --card-border: rgba(0, 0, 0, 0.1);
             --brand-blue: #0277BD;
             --brand-gold: #F9A825;
@@ -519,17 +519,12 @@
 
         .expanded-content {
             padding: 40px;
-            /* Reduced padding for more space */
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            /* Changed from center to allow scroll */
             position: relative;
             max-height: 100%;
-            /* Fit within parent card */
-            overflow-y: auto;
-            /* Enable scrolling */
-            /* Custom Scrollbar Styling */
+            overflow-y: scroll;
             scrollbar-width: thin;
             scrollbar-color: var(--brand-gold) rgba(255, 255, 255, 0.1);
         }
@@ -549,15 +544,15 @@
         }
 
         .cta-btn-premium {
-            margin-top: 30px;
+            margin-top: auto;
+            flex-shrink: 0;
             align-self: flex-start;
-            padding: 15px 40px;
+            padding: 12px 30px;
             border: 2px solid var(--brand-gold);
             background: transparent;
             color: var(--brand-gold);
             font-family: var(--font-head);
-            /* Uses Russo One or similar */
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             text-transform: uppercase;
             letter-spacing: 2px;
             cursor: pointer;
@@ -566,14 +561,11 @@
             position: relative;
             overflow: hidden;
             z-index: 1;
-            /* Fix for clipping: Use inline-flex for better centering/box containment */
             display: inline-flex;
             align-items: center;
             justify-content: center;
             line-height: normal;
-            /* Let font decide height */
-            /* Ensure sufficient height for the font render */
-            min-height: 60px;
+            min-height: 50px;
         }
 
         .cta-btn-premium::before {
@@ -876,7 +868,7 @@
 
         <div class="ingredient-grid">
             <!-- 1. Sohiong (Replaces Kokum) -->
-            <div class="ingredient-card float-delay-1" onclick="openCard(this)">
+            <div class="ingredient-card float-delay-1">
                 <div class="ing-visual">
                     <img src="fruit panel/Sohiong.png" alt="Sohiong">
                 </div>
@@ -900,7 +892,7 @@
             </div>
 
             <!-- 2. Seabuckthorn -->
-            <div class="ingredient-card float-delay-2" onclick="openCard(this)">
+            <div class="ingredient-card float-delay-2">
                 <div class="ing-visual">
                     <img src="fruit panel/Seabuckthorn.png" alt="Seabuckthorn">
                 </div>
@@ -923,7 +915,7 @@
             </div>
 
             <!-- 3. Kaphal (Replaces Jamun) -->
-            <div class="ingredient-card float-delay-3" onclick="openCard(this)">
+            <div class="ingredient-card float-delay-3">
                 <div class="ing-visual">
                     <img src="fruit panel/Kaphal.png" alt="Kaphal">
                 </div>
@@ -946,34 +938,34 @@
                 </div>
             </div>
 
-            <!-- 4. Ksheeravidari (Replaces Amla) -->
-            <div class="ingredient-card float-delay-4 large-item" onclick="openCard(this)">
+            <!-- 4. Bhu Krishna (Replaces Ksheeravidari) -->
+            <div class="ingredient-card float-delay-4 large-item">
                 <div class="ing-visual">
-                    <img src="fruit panel/Ksheeravidari.png" alt="Ksheeravidari"
-                        onerror="this.src='https://via.placeholder.com/150?text=Ksheeravidari';">
+                    <img src="fruit panel/Bhu Krishna.png" alt="Bhu Krishna"
+                        onerror="this.src='https://via.placeholder.com/150?text=Bhu+Krishna';">
                 </div>
                 <div class="ing-content">
-                    <h3>Ksheeravidari</h3>
-                    <div class="ing-tags"><span>Natural Mass Gainer</span><span>Vitality (Ojas)</span></div>
-                    <p><strong>Ayurveda:</strong> Classified as "Brimhana" (Mass Builder). A massive wild vine whose
-                        milky latex is considered pure vitality.</p>
-                    <p><strong>Modern:</strong> Unlike empty starches, it uses Pterocarpanoids to signal tissue growth
-                        and improve protein uptake for "clean bulking".</p>
+                    <h3>Bhu Krishna</h3>
+                    <div class="ing-tags"><span>Cellular Energy</span><span>Core Vitality</span></div>
+                    <p><strong>Ayurveda:</strong> Acclaimed as a potent restorative herb to awaken deep-seated reserves.
+                    </p>
+                    <p><strong>Modern:</strong> Optimizes mitochondrial function and stabilizes metabolic pathways
+                        during grueling endurance challenges.</p>
                 </div>
                 <div class="card-details-hidden">
-                    <div class="detail-title">Ksheeravidari: Pure Vitality</div>
-                    <div class="detail-desc">In the world of "clean bulking," Ksheeravidari is the Apex. Classified in
-                        Ayurveda as 'Brimhana' (that which expands), it isn't just calories—it is signaling. Its milky
-                        latex is rich in Pterocarpanoids, which improve protein synthesis and tissue formation. It helps
-                        you gain functional mass, not water weight or fat, making it the ultimate tool for strength
-                        athletes and rugby players.</div>
+                    <div class="detail-title">Bhu Krishna: Core Awakener</div>
+                    <div class="detail-desc">Sourced from the heart of untouched bio-reserves, Bhu Krishna is a
+                        revolutionary approach to cellular energy. Rather than over-stimulating the nervous system like
+                        caffeine, it works at the mitochondrial level to increase natural ATP production. It acts as a
+                        profound restorative agent, maintaining steady power output and preventing the deep core fatigue
+                        that ruins elite performance.</div>
                     <div class="detail-color">#5d4037</div>
-                    <div class="detail-image">fruit panel/Ksheeravidari.png</div>
+                    <div class="detail-image">fruit panel/Bhu Krishna.png</div>
                 </div>
             </div>
 
             <!-- 5. Hadjod (Replaces Ashwagandha) -->
-            <div class="ingredient-card float-delay-1 large-item" onclick="openCard(this)">
+            <div class="ingredient-card float-delay-1 large-item">
                 <div class="ing-visual">
                     <img src="fruit panel/Hadjod.png" alt="Hadjod">
                 </div>
@@ -997,7 +989,7 @@
             </div>
 
             <!-- 6. Arjuna -->
-            <div class="ingredient-card float-delay-2" onclick="openCard(this)">
+            <div class="ingredient-card float-delay-2">
                 <div class="ing-visual">
                     <img src="fruit panel/Arjuna.png" alt="Arjuna">
                 </div>
@@ -1021,7 +1013,7 @@
             </div>
 
             <!-- 7. Gokshura -->
-            <div class="ingredient-card float-delay-3 large-item" onclick="openCard(this)">
+            <div class="ingredient-card float-delay-3 large-item">
                 <div class="ing-visual">
                     <img src="fruit panel/Gokshura.png" alt="Gokshura">
                 </div>
@@ -1043,26 +1035,27 @@
                 </div>
             </div>
 
-            <!-- 8. Safed Musli -->
-            <div class="ingredient-card float-delay-4 large-item" onclick="openCard(this)">
+            <!-- 8. Cashew Apple (Replaces Safed Musli) -->
+            <div class="ingredient-card float-delay-4 large-item">
                 <div class="ing-visual">
-                    <img src="fruit panel/Safed Musli.png" alt="Safed Musli">
+                    <img src="fruit panel/cashew apple.png" alt="Cashew Apple">
                 </div>
                 <div class="ing-content">
-                    <h3>Safed Musli</h3>
-                    <div class="ing-tags"><span>Glycogen Loading</span><span>Recovery</span></div>
-                    <p><strong>Ayurveda:</strong> Nutritive tonic.</p>
-                    <p><strong>Modern:</strong> Saponins drive nutrients into muscle cells, rapidly replenishing
-                        glycogen.</p>
+                    <h3>Cashew Apple</h3>
+                    <div class="ing-tags"><span>Rapid Rehydration</span><span>Vitamin C</span></div>
+                    <p><strong>Origin:</strong> Tropical coastal zones.</p>
+                    <p><strong>Modern:</strong> Hyper-dense source of Vitamin C and minerals that instantly restores
+                        lost electrolytes after sweating.</p>
                 </div>
                 <div class="card-details-hidden">
-                    <div class="detail-title">Safed Musli: The Recharger</div>
-                    <div class="detail-desc">Recovery is glycogen. After depletion, your muscles are starving for fuel.
-                        Safed Musli is rich in Saponins that mimic insulin's effect, helping to drive carbohydrates and
-                        nutrients rapidly into the muscle cell for glycogen resynthesis. It reduces the downtime between
-                        sessions, allowing you to train harder, sooner.</div>
-                    <div class="detail-color">#fff176</div>
-                    <div class="detail-image">fruit panel/Safed Musli.png</div>
+                    <div class="detail-title">Cashew Apple: The Hydration Matrix</div>
+                    <div class="detail-desc">The often-overlooked pseudo-fruit of the cashew tree is a nutritional
+                        juggernaut. It contains up to five times the Vitamin C of an orange and is packed with
+                        bio-available copper and essential electrolytes. After intense output, muscle cells are
+                        desperate for fluids; Cashew Apple extract acts as a natural, low-sugar osmotic driver, pulling
+                        water back into dehydrated tissue faster than isolated supplements.</div>
+                    <div class="detail-color">#fbc02d</div>
+                    <div class="detail-image">fruit panel/cashew apple.png</div>
                 </div>
             </div>
         </div>
@@ -1245,10 +1238,7 @@
                 /* Micro-gold ring */
             }
 
-            /* Solar Background override */
-            body.light-mode {
-                background: radial-gradient(circle at 50% 0%, #ffffff 0%, #fff3e0 100%);
-            }
+            /* Solar Background override removed so it respects --bg-color */
         </style>
 
         <section id="products">
@@ -1265,7 +1255,8 @@
                         levels.</p>
                     <div class="card-actions" style="display: flex; gap: 10px; align-items: center; margin-top: auto;">
                         <a class="card-link">DETAILS</a>
-                        <button class="cta-btn-small"
+                        <button type="button" class="cta-btn-small"
+                            onclick="event.stopPropagation(); orderProduct('Premium Energy Mixes');"
                             style="background:transparent; font-size: 0.8rem; padding: 5px 10px; border: 1px solid var(--brand-blue); border-radius: 4px; color: var(--brand-blue); font-weight: bold; cursor: pointer;">ORDER
                             NOW</button>
                     </div>
@@ -1292,7 +1283,8 @@
                         muscle repair.</p>
                     <div class="card-actions" style="display: flex; gap: 10px; align-items: center; margin-top: auto;">
                         <a class="card-link">DETAILS</a>
-                        <button class="cta-btn-small"
+                        <button type="button" class="cta-btn-small"
+                            onclick="event.stopPropagation(); orderProduct('Organic Nut Butters');"
                             style="background:transparent; font-size: 0.8rem; padding: 5px 10px; border: 1px solid var(--brand-blue); border-radius: 4px; color: var(--brand-blue); font-weight: bold; cursor: pointer;">ORDER
                             NOW</button>
                     </div>
@@ -1319,9 +1311,10 @@
                     </p>
                     <div class="card-actions" style="display: flex; gap: 10px; align-items: center; margin-top: auto;">
                         <a class="card-link">DETAILS</a>
-                        <a href="#contact" class="cta-btn-small"
-                            style="font-size: 0.8rem; padding: 5px 10px; border: 1px solid var(--brand-blue); border-radius: 4px; color: var(--brand-blue); text-decoration: none; font-weight: bold; pointer-events: none;">ORDER
-                            NOW</a>
+                        <button type="button" class="cta-btn-small"
+                            onclick="event.stopPropagation(); orderProduct('Deep Recovery Formula');"
+                            style="background:transparent; font-size: 0.8rem; padding: 5px 10px; border: 1px solid var(--brand-blue); border-radius: 4px; color: var(--brand-blue); cursor: pointer; font-weight: bold;">ORDER
+                            NOW</button>
                     </div>
                     <div class="card-details-hidden">
                         <div class="detail-title">Deep Recovery Formula</div>
@@ -1341,196 +1334,6 @@
             </div>
         </section>
 
-        <!-- KAAVA ADVANTAGE SECTION -->
-        <section id="advantage" style="padding: 100px 5%; position: relative; z-index: 10;">
-            <div class="section-header scroll-3d">
-                <h2>THE KAAVA ADVANTAGE</h2>
-                <p style="color: var(--text-muted); margin-top: 10px;">Why nature beats the lab every time.</p>
-            </div>
-
-            <style>
-                .advantage-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 40px;
-                    max-width: 1100px;
-                    margin: 0 auto;
-                }
-
-                .adv-card {
-                    padding: 40px;
-                    border-radius: 20px;
-                    border: 1px solid var(--card-border);
-                    background: rgba(15, 20, 28, 0.85);
-                    /* Frosted Semi-Transparent */
-                    backdrop-filter: blur(12px);
-                    /* Blur Effect */
-                    -webkit-backdrop-filter: blur(12px);
-                    /* transition: transform 0.3s ease; REMOVED FOR 3D TILT */
-                    z-index: 2;
-                    position: relative;
-                    animation: floatPanel 6s ease-in-out infinite;
-                    /* Kinetic Movement */
-                }
-
-                @keyframes floatPanel {
-
-                    0%,
-                    100% {
-                        transform: translateY(0);
-                    }
-
-                    50% {
-                        transform: translateY(-10px);
-                    }
-                }
-
-                .adv-card h3 {
-                    font-size: 1.5rem;
-                    margin-bottom: 20px;
-                }
-
-                .adv-card.synthetic {
-                    border-color: #444;
-                    color: #888;
-                }
-
-                .adv-card.synthetic h3 {
-                    color: #aaa;
-                }
-
-                .adv-card.kaava {
-                    border-color: var(--brand-gold);
-                    background: linear-gradient(145deg, rgba(255, 215, 0, 0.05), transparent);
-                    box-shadow: 0 0 30px rgba(255, 215, 0, 0.05);
-                    animation-delay: 1s;
-                    /* Offset animation */
-                }
-
-                .adv-card.kaava h3 {
-                    color: var(--brand-gold);
-                    text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-                }
-
-                .stat-row {
-                    display: flex;
-                    align-items: center;
-                    gap: 15px;
-                    margin: 25px 0;
-                    font-family: monospace;
-                    font-size: 1.1rem;
-                }
-
-                .bar-container {
-                    flex: 1;
-                    height: 12px;
-                    background: rgba(0, 0, 0, 0.4);
-                    border-radius: 6px;
-                    overflow: hidden;
-                    position: relative;
-                }
-
-                .bar-fill {
-                    height: 100%;
-                    border-radius: 6px;
-                    position: relative;
-                }
-
-                /* Synthetic Bar */
-                .bar-fill.synthetic-fill {
-                    width: 15%;
-                    background: #555;
-                }
-
-                /* Kaava Bar */
-                .bar-fill.kaava-fill {
-                    background: var(--brand-gold);
-                }
-
-                @keyframes fillBar {
-                    to {
-                        width: 95%;
-                    }
-                }
-
-                .adv-desc {
-                    font-size: 0.95rem;
-                    line-height: 1.6;
-                    color: var(--text-main);
-                    opacity: 0.8;
-                }
-
-                .adv-card.synthetic .adv-desc {
-                    opacity: 0.6;
-                }
-
-                @media(max-width: 768px) {
-                    .advantage-grid {
-                        grid-template-columns: 1fr;
-                    }
-                }
-            </style>
-
-            <div class="advantage-grid">
-                <!-- Dull Side -->
-                <div class="adv-card synthetic scroll-3d">
-                    <h3>Synthetic Supplements</h3>
-
-                    <div class="stat-row">
-                        <span style="width: 140px;">Protein Absorption</span>
-                        <div class="bar-container">
-                            <div class="bar-fill synthetic-fill" style="width: 20%;"></div>
-                        </div>
-                    </div>
-                    <div class="stat-row">
-                        <span style="width: 140px;">Iron Uptake</span>
-                        <div class="bar-container">
-                            <div class="bar-fill synthetic-fill" style="width: 10%;"></div>
-                        </div>
-                    </div>
-                    <div class="stat-row">
-                        <span style="width: 140px;">Bio-Availability</span>
-                        <div class="bar-container">
-                            <div class="bar-fill synthetic-fill" style="width: 15%;"></div>
-                        </div>
-                    </div>
-
-                    <p class="adv-desc">Isolated chemical chains. Often derived from coal tar or petroleum byproducts.
-                        Hard to digest and frequently rejected by the body as foreign matter.</p>
-                </div>
-
-                <!-- Bright Side -->
-                <div class="adv-card kaava scroll-3d">
-                    <h3>Kaava Bio-Active</h3>
-
-                    <div class="stat-row">
-                        <span style="width: 140px;">Protein Absorption</span>
-                        <div class="bar-container">
-                            <div class="bar-fill kaava-fill"
-                                style="width: 92%; box-shadow: 0 0 15px var(--brand-gold);"></div>
-                        </div>
-                    </div>
-                    <div class="stat-row">
-                        <span style="width: 140px;">Iron Uptake</span>
-                        <div class="bar-container">
-                            <div class="bar-fill kaava-fill"
-                                style="width: 88%; box-shadow: 0 0 15px var(--brand-gold);"></div>
-                        </div>
-                    </div>
-                    <div class="stat-row">
-                        <span style="width: 140px;">Bio-Availability</span>
-                        <div class="bar-container">
-                            <div class="bar-fill kaava-fill"
-                                style="width: 98%; box-shadow: 0 0 15px var(--brand-gold);"></div>
-                        </div>
-                    </div>
-
-                    <p class="adv-desc">Whole-food matrix. Our ingredients retain their natural co-factors and enzymes,
-                        meaning your cells instantly recognize and absorb them for maximum impact.</p>
-                </div>
-            </div>
-
-        </section>
 
         <script>
             // 3D TILT EFFECT FOR PRODUCT & ADVANTAGE CARDS
@@ -1581,7 +1384,8 @@
                     </div>
                     <div
                         style="padding: 30px; background: rgba(0,0,0,0.2); border-left: 4px solid var(--brand-gold); border-radius: 0 15px 15px 0;">
-                        <h3 style="color: var(--brand-blue); font-size: 2.2rem; text-transform: uppercase;">MoU with UAS
+                        <h3 style="color: var(--brand-blue); font-size: 2.2rem; text-transform: uppercase;">MoU with
+                            UAS
                             Dharwad</h3>
                         <p style="font-size: 1.2rem; margin-top: 15px; line-height: 1.6;">
                             We are developing naturally <strong>Iron-Rich</strong> bio-fortified formulations. This
@@ -1590,6 +1394,29 @@
                                 onclick="document.getElementById('energy-mix-card').click();">Energy Mixes</strong>,
                             ensuring
                             superior oxygen transport and sustained stamina.
+                        </p>
+                    </div>
+
+                    <div
+                        style="padding: 30px; background: rgba(0,0,0,0.2); border-left: 4px solid var(--brand-gold); border-radius: 0 15px 15px 0; margin-top: 20px;">
+                        <h3 style="color: var(--brand-blue); font-size: 2.2rem; text-transform: uppercase;">MoU with
+                            Horticulture Research Station, Kodaikanal</h3>
+                        <p style="font-size: 1.2rem; margin-top: 15px; line-height: 1.6;">
+                            Pioneering research on high-altitude adaptogens and indigenous flora. This collaboration
+                            secures sustainable sourcing and isolates potent botanical compounds that maximize
+                            <strong>cellular recovery</strong> and stress resilience in elite athletes.
+                        </p>
+                    </div>
+
+                    <div
+                        style="padding: 30px; background: rgba(0,0,0,0.2); border-left: 4px solid var(--brand-gold); border-radius: 0 15px 15px 0; margin-top: 20px;">
+                        <h3 style="color: var(--brand-blue); font-size: 2.2rem; text-transform: uppercase;">Partnership
+                            with a Premier Bio-Sciences University, Bangalore</h3>
+                        <p style="font-size: 1.2rem; margin-top: 15px; line-height: 1.6;">
+                            Engaged in advanced clinical trials on <strong>Bio-availability Multipliers</strong>. By
+                            analyzing whole-food matrices, our joint research isolates enzymatic co-factors that
+                            increase nutrient uptake by over 40%, guaranteeing rapid assimilation without gastric
+                            distress.
                         </p>
                     </div>
                 </div>
@@ -1611,21 +1438,22 @@
                 <div class="scroll-3d"
                     style="background: rgba(255,255,255,0.03); padding: 30px; border-radius: 15px; border: 1px solid var(--card-border); flex: 1; min-width: 300px;">
                     <p style="font-style: italic; color: #ccc; margin-bottom: 20px;">"Kaava's Energy Mix is the only
-                        thing that sustains me during 18-hour climbs in the Western Ghats. No crash, just pure focus."
+                        thing that sustains me during intense runs and football matches. No crash, just pure focus."
                     </p>
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="font-weight: bold; color: var(--brand-gold);">Arjun V.</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Pro Climber</div>
+                        <div style="font-weight: bold; color: var(--brand-gold);">Arjun Subbaraman</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Pro Runner and a Football player</div>
                     </div>
                 </div>
                 <!-- Testimonial 2 -->
                 <div class="scroll-3d"
                     style="background: rgba(255,255,255,0.03); padding: 30px; border-radius: 15px; border: 1px solid var(--card-border); flex: 1; min-width: 300px;">
-                    <p style="font-style: italic; color: #ccc; margin-bottom: 20px;">"The recovery from Ksheeravidari is
-                        real. I'm hitting peak wattage numbers day after day without the usual fatigue."</p>
+                    <p style="font-style: italic; color: #ccc; margin-bottom: 20px;">"The recovery from Kaava premium
+                        nutrition mix is
+                        real. I'm hitting peak performance day after day without the usual fatigue."</p>
                     <div style="display: flex; align-items: center; gap: 15px;">
-                        <div style="font-weight: bold; color: var(--brand-gold);">Sarah L.</div>
-                        <div style="font-size: 0.8rem; color: var(--text-muted);">Ultra Cyclist</div>
+                        <div style="font-weight: bold; color: var(--brand-gold);">Pranav Mangloi</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Basket Ball player</div>
                     </div>
                 </div>
             </div>
@@ -1640,13 +1468,27 @@
                     <p style="color:var(--text-muted);">📞 98452 01442</p>
                 </div>
                 <div class="contact-form-wrapper">
-                    <form>
-                        <label style="color:var(--brand-blue); font-weight:bold; font-size:0.8rem;">EMAIL</label>
-                        <input type="email" placeholder="athlete@example.com">
-                        <label style="color:var(--brand-blue); font-weight:bold; font-size:0.8rem;">MESSAGE</label>
-                        <textarea rows="4" placeholder="How can we help?"></textarea>
-                        <button type="submit" class="cta-btn"
+                    <form id="contact-form">
+                        <label style="color:var(--brand-blue); font-weight:bold; font-size:0.8rem;">EMAIL *</label>
+                        <input type="email" name="email" id="email" placeholder="athlete@example.com" required>
+                        <label style="color:var(--brand-blue); font-weight:bold; font-size:0.8rem;">PHONE
+                            (OPTIONAL)</label>
+                        <input type="tel" name="phone" id="phone" placeholder="+91 00000 00000">
+                        <label style="color:var(--brand-blue); font-weight:bold; font-size:0.8rem;">MESSAGE *</label>
+                        <textarea name="message" id="message" rows="4" placeholder="How can we help?"
+                            required></textarea>
+
+                        <!-- FormSubmit config -->
+                        <input type="hidden" name="_subject" value="New Inquiry from Kaava Nutrition Website">
+                        <input type="hidden" name="_captcha" value="false">
+                        <input type="hidden" name="_template" value="box">
+                        <input type="hidden" name="_replyto" id="_replyto">
+
+                        <button type="submit" class="cta-btn" id="submit-btn"
                             style="width:100%; border:none; cursor:pointer;">Submit</button>
+                        <p id="form-status"
+                            style="margin-top: 15px; text-align: center; font-weight: bold; font-size: 0.9rem; display: none;">
+                        </p>
                     </form>
                 </div>
             </div>
@@ -1678,7 +1520,7 @@
 
             <!-- Card -->
             <div class="expanded-card" id="expanded-card"
-                style="position: relative; width: 90vw; max-width: 1100px; height: auto; max-height: 80vh; background: var(--bg-card); border: 1px solid var(--brand-gold); border-radius: 20px; display: grid; grid-template-columns: 1fr 1fr; overflow: hidden; opacity: 0; visibility: hidden; transform: scale(0.9); transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); margin: 0; pointer-events: auto; box-shadow: 0 0 60px rgba(0,0,0,0.8);">
+                style="position: relative; width: 90vw; max-width: 1100px; height: 80vh; background: var(--bg-card); border: 1px solid var(--brand-gold); border-radius: 20px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; overflow: hidden; opacity: 0; visibility: hidden; transform: scale(0.9); transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); margin: 0; pointer-events: auto; box-shadow: 0 0 60px rgba(0,0,0,0.8);">
 
                 <div class="expanded-close" onclick="closeCard()">✕</div>
 
@@ -1694,7 +1536,8 @@
                     </h2>
                     <div style="width: 50px; height: 4px; background: var(--brand-gold); margin-bottom: 30px;"></div>
                     <div class="spotlight-desc" id="modal-desc" data-text=""></div>
-                    <a href="#contact" onclick="closeCard()" class="cta-btn-premium">Order Now</a>
+                    <button type="button" onclick="orderProduct(document.getElementById('modal-title').innerText)"
+                        class="cta-btn-premium" style="border:none; cursor:pointer;">Order Now</button>
                 </div>
             </div>
         </div>
@@ -1765,6 +1608,23 @@
                 document.body.classList.remove('no-scroll');
             }
 
+            function orderProduct(productName) {
+                // Close modal if open
+                if (typeof closeCard === 'function') closeCard();
+
+                // Pre-fill the contact form message
+                const msgBox = document.getElementById('message');
+                if (msgBox) {
+                    msgBox.value = 'I want to buy ' + productName + '.';
+                }
+
+                // Smooth scroll to the contact form
+                const contactSection = document.getElementById('contact');
+                if (contactSection) {
+                    contactSection.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+
             const body = document.body;
             let isLight = false;
             function toggleTheme() {
@@ -1830,6 +1690,8 @@
             const init3DBackground = () => {
                 const container = document.getElementById('canvas-container');
                 const scene = new THREE.Scene();
+                // Expose scene to global scope for theme switching
+                window.threeScene = scene;
                 // Matching dark mode/light mode fog
                 scene.fog = new THREE.FogExp2(0x0b1016, 0.04);
 
@@ -2065,7 +1927,7 @@
                 // COLOR MODE LISTENER (Existing site feature)
                 // COLOR MODE LISTENER (Existing site feature)
                 window.updateSceneColors = (light) => {
-                    const bgColor = light ? 0xfff9ec : 0x0b1016;
+                    const bgColor = light ? 0xe4e1d9 : 0x0b1016;
                     scene.fog.color.setHex(bgColor);
 
                     // Particle Color Update
@@ -2093,6 +1955,64 @@
                 entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
             }, { threshold: 0.1 });
             document.querySelectorAll('.scroll-3d').forEach(el => observer.observe(el));
+
+            // --- CONTACT FORM AJAX SUBMISSION ---
+            const contactForm = document.getElementById('contact-form');
+            if (contactForm) {
+                contactForm.addEventListener('submit', function (e) {
+                    e.preventDefault();
+
+                    const btn = document.getElementById('submit-btn');
+                    const statusText = document.getElementById('form-status');
+                    const originalBtnText = btn.innerText;
+
+                    // Show sending state
+                    btn.innerText = 'Sending...';
+                    btn.disabled = true;
+                    statusText.style.display = 'none';
+
+                    // Set the replyto field to match the sender's email
+                    const emailInput = document.getElementById('email');
+                    const replytoField = document.getElementById('_replyto');
+                    if (emailInput && replytoField) {
+                        replytoField.value = emailInput.value;
+                    }
+
+                    const formData = new FormData(this);
+
+                    // Using FormSubmit.co for free HTML form emails without backend
+                    fetch('https://formsubmit.co/ajax/arjun.subbaraman13@gmail.com', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            btn.innerText = 'Message Sent!';
+                            statusText.style.display = 'block';
+                            statusText.style.color = '#33ff8c';
+                            statusText.innerText = 'Thanks for reaching out! We will get back to you shortly.';
+
+                            this.reset();
+
+                            setTimeout(() => {
+                                btn.innerText = originalBtnText;
+                                btn.disabled = false;
+                            }, 4000);
+                        })
+                        .catch(error => {
+                            console.error(error);
+                            btn.innerText = 'Error';
+                            statusText.style.display = 'block';
+                            statusText.style.color = '#ff4c4c';
+                            statusText.innerText = 'Something went wrong. Please try again.';
+
+                            setTimeout(() => {
+                                btn.innerText = originalBtnText;
+                                btn.disabled = false;
+                            }, 4000);
+                        });
+                });
+            }
         </script>
 </body>
 
