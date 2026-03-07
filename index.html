@@ -1971,19 +1971,21 @@
                     btn.disabled = true;
                     statusText.style.display = 'none';
 
-                    // Set the replyto field to match the sender's email
-                    const emailInput = document.getElementById('email');
-                    const replytoField = document.getElementById('_replyto');
-                    if (emailInput && replytoField) {
-                        replytoField.value = emailInput.value;
-                    }
+                    const emailVal = document.getElementById('email').value;
+                    const phoneVal = document.getElementById('phone').value;
+                    const messageVal = document.getElementById('message').value;
 
-                    const formData = new FormData(this);
+                    const params = new URLSearchParams();
+                    params.append('email', emailVal);
+                    params.append('phone', phoneVal);
+                    params.append('message', messageVal);
 
-                    // Using FormSubmit.co for free HTML form emails without backend
-                    fetch('https://formsubmit.co/ajax/arjun.subbaraman13@gmail.com', {
+                    // Google Apps Script relay — no third-party signup needed
+                    const SCRIPT_URL = 'https://script.google.com/macros/s/1bBB0j98EenRqUFqEj7rCmMEDvj0Hb7Sncbm7QeW5WJAm5H0zt612A-7E/exec';
+                    fetch(SCRIPT_URL, {
                         method: 'POST',
-                        body: formData
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: params.toString()
                     })
                         .then(response => response.json())
                         .then(data => {
