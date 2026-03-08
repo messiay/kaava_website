@@ -1520,6 +1520,8 @@
                         <label style="color:var(--brand-blue); font-weight:bold; font-size:0.8rem;">PHONE
                             (OPTIONAL)</label>
                         <input type="tel" name="phone" id="phone" placeholder="+91 00000 00000">
+                        <label style="color:var(--brand-blue); font-weight:bold; font-size:0.8rem;">NAME *</label>
+                        <input type="text" name="name" id="name" placeholder="Your Full Name" required>
                         <label style="color:var(--brand-blue); font-weight:bold; font-size:0.8rem;">MESSAGE *</label>
                         <textarea name="message" id="message" rows="4" placeholder="How can we help?"
                             required></textarea>
@@ -2017,11 +2019,13 @@
 
                     const emailVal = document.getElementById('email').value;
                     const phoneVal = document.getElementById('phone').value;
+                    const nameVal = document.getElementById('name').value;
                     const messageVal = document.getElementById('message').value;
 
                     const params = new URLSearchParams();
                     params.append('email', emailVal);
                     params.append('phone', phoneVal);
+                    params.append('name', nameVal);
                     params.append('message', messageVal);
 
                     // Google Apps Script relay — no third-party signup needed
