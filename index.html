@@ -1594,7 +1594,7 @@
                 if (modalShape) modalShape.style.background = color;
 
                 if (imgSrc && imgSrc.trim() !== '' && modalImg) {
-                    modalImg.src = imgSrc;
+                    modalImg.src = imgSrc.trim();
                     modalImg.style.opacity = '1';
                     if (modalShape) modalShape.style.opacity = '0';
                 } else if (modalImg) {
