@@ -21,8 +21,10 @@ const mimeTypes = {
 const server = http.createServer((req, res) => {
     console.log(`REQ: ${req.url}`);
 
-    // Check for root
-    let filePath = '.' + req.url;
+    // Fix: Remove query parameters from the URL before mapping to file path
+    const url = new URL(req.url, `http://${req.headers.host}`);
+    let filePath = '.' + url.pathname;
+    
     if (filePath === './') {
         filePath = './index.html';
     }

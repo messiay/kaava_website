@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaava Nutrition | Our Story</title>
+    <meta name="description" content="Learn the story behind Kaava Nutrition. Founded in 2024 to bring Ayurveda and the lost, ancient wellness traditions of India into the modern sports arena.">
+    <meta name="keywords" content="Kaava story, Kaava mission, Kaava foundation, Indian sports nutrition, Ayurvedic origin">
+    <meta property="og:title" content="Kaava Nutrition | Our Story">
+    <meta property="og:description" content="Learn the story behind Kaava Nutrition. Founded in 2024 to bring Ayurveda and the lost wellness traditions of India into the modern sports arena.">
+    <meta property="og:image" content="https://kaavanutrition.in/logo.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kaavanutrition.in/our-story.html">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Kaava Nutrition | Our Story">
+    <meta name="twitter:description" content="Learn the story behind Kaava Nutrition. Founded in 2024 to bring Ayurveda and the lost wellness traditions of India into the modern sports arena.">
+    <meta name="twitter:image" content="https://kaavanutrition.in/logo.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Russo+One&family=Saira:wght@300;400;600&family=Oswald:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/samarkan" rel="stylesheet">
+
+    <!-- SCRIPTS -->
+    <script src="https://unpkg.com/three@0.146.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.146.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        /* CSS Variables - Shared */
+        :root {
+            --bg-color: #0b1016;
+            --bg-card: #0f141c;
+            --text-main: #ffffff;
+            --text-muted: #a0b0c0;
+            --brand-blue: #29B6F6;
+            --brand-gold: #FDD835;
+            --glow-blue: rgba(41, 182, 246, 0.6);
+            --glow-gold: rgba(253, 216, 53, 0.6);
+            --shadow-soft: 0 20px 50px rgba(0, 0, 0, 0.9);
+            --nav-bg: rgba(11, 16, 22, 0.95);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --font-head: 'Russo One', sans-serif;
+            --font-body: 'Saira', sans-serif;
+        }
+
+        body.light-mode {
+            --bg-color: #e4e1d9;
+            --bg-card: #f2f0ea;
+            --text-main: #2d3748;
+            --text-muted: #4a5568;
+            --nav-bg: rgba(228, 225, 217, 0.95);
+            --card-border: rgba(0, 0, 0, 0.1);
+            --brand-blue: #0277BD;
+            --brand-gold: #F9A825;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+        body { background-color: var(--bg-color); color: var(--text-main); font-family: var(--font-body); overflow-x: hidden; transition: 0.5s; }
+        h1, h2, h3 { font-family: var(--font-head); text-transform: uppercase; color: var(--text-main); line-height: 1.2; }
+
+        /* NAVIGATION */
+        nav {
+            position: fixed; top: 0; width: 100%; padding: 20px 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 1000; background: var(--nav-bg); backdrop-filter: blur(15px);
+            border-bottom: 2px solid var(--brand-gold);
+        }
+        .logo { font-size: 2.2rem; font-family: 'Samarkan', sans-serif; color: #FE9D00; display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo img { width: 50px; height: auto; }
+        .nav-links { display: flex; gap: 40px; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 600; text-transform: uppercase; transition: 0.3s; }
+        .nav-links a:hover, .nav-links a.active { color: var(--brand-blue); }
+        .theme-toggle { background: transparent; border: 2px solid var(--brand-blue); color: var(--brand-blue); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+
+        #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; }
+
+        section { padding: 120px 10%; max-width: 1600px; margin: 0 auto; position: relative; }
+        .section-header { text-align: center; margin-bottom: 80px; }
+        .section-header h2 { font-size: 3.5rem; display: inline-block; position: relative; }
+        .section-header h2::after { content: ''; position: absolute; width: 120%; height: 3px; bottom: -5px; left: -10%; background: var(--brand-blue); box-shadow: 0 0 15px var(--brand-blue); }
+
+        /* R&D STYLES */
+        .rnd-container { display: flex; flex-wrap: wrap; gap: 80px; align-items: flex-start; }
+        .rnd-text { flex: 1; min-width: 300px; }
+        .rnd-card { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); padding: 30px; border-radius: 15px; margin-bottom:30px; }
+        .mou-card { padding: 30px; background: rgba(0,0,0,0.2); border-left: 4px solid var(--brand-gold); border-radius: 0 15px 15px 0; margin-bottom: 20px; }
+
+        /* CONTACT FORM STYLES */
+        .contact-split { display: grid; grid-template-columns: 1fr 1.5fr; gap: 0; background: var(--bg-card); box-shadow: var(--shadow-soft); border-radius: 20px; overflow: hidden; border: 1px solid var(--card-border); backdrop-filter: blur(10px); }
+        .contact-info { background: rgba(0, 0, 0, 0.2); padding: 60px; border-right: 1px solid var(--card-border); }
+        .contact-form-wrapper { padding: 60px; }
+        input, textarea { width: 100%; padding: 20px; margin-bottom: 25px; border: 1px solid var(--card-border); border-radius: 8px; background: rgba(0,0,0,0.2); color: var(--text-main); font-family: var(--font-body); }
+        body.light-mode input, body.light-mode textarea { background: #f1f5f9; color: #000; border: 1px solid #cbd5e1; }
+        input:focus, textarea:focus { border-color: var(--brand-blue); outline: none; box-shadow: 0 0 15px rgba(41, 182, 246, 0.2); }
+        .cta-btn { padding: 20px 60px; border: 2px solid var(--brand-gold); color: var(--brand-gold); background: transparent; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: 0.3s; width: 100%; }
+        .cta-btn:hover { background: var(--brand-gold); color: black; box-shadow: 0 0 30px var(--glow-gold); }
+
+        .scroll-3d { opacity: 0; transform: perspective(1000px) translate3d(0, 50px, -50px) rotateX(20deg); transition: 0.8s; }
+        .scroll-3d.visible { opacity: 1; transform: perspective(1000px) translate3d(0, 0, 0) rotateX(0deg); }
+
+        footer { background: var(--bg-card); color: var(--text-muted); padding: 100px 10%; text-align: center; border-top: 1px solid var(--card-border); }
+
+        @media (max-width: 900px) {
+            .contact-split { grid-template-columns: 1fr; }
+            .rnd-container { gap: 40px; }
+            .nav-links { display: none; }
+        }
+    </style>
+</head>
+
+<body class="dark-mode">
+    <div id="canvas-container"></div>
+
+    <nav>
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Kaava Logo">
+            KAAVA
+        </a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="our-story.html" class="active">Our Story</a>
+            <a href="about.html">R&D</a>
+            <a href="#contact">Contact</a>
+            <button class="theme-toggle" onclick="toggleTheme()">Mode</button>
+        </div>
+    </nav>
+
+    <section id="about-story" style="max-width: 900px; margin: 0 auto; padding-top: 150px;">
+        <div class="section-header scroll-3d">
+            <h2>OUR STORY & MISSION</h2>
+        </div>
+        
+        <div class="story-content scroll-3d" style="text-align: center; background: rgba(10, 15, 25, 0.75); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 60px 50px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+            <h3 style="color: var(--brand-gold); font-size: 2.5rem; margin-bottom: 40px; text-transform: uppercase;">Ancient India. Elite Performance.</h3>
+            
+            <p style="font-size: 1.3rem; line-height: 2; margin-bottom: 35px; color: var(--text-main);">
+                Kaava Nutrition was born from a simple yet radical realization: the most potent technology on Earth is nature itself. Founded in 2024, our mission is to bring Ayurveda—along with the lost, ancient, and highly-practiced wellness traditions of India—straight into the modern sports arena. We are proudly an Indian sports nutrition company. 
+            </p>
+            <p style="font-size: 1.3rem; line-height: 2; margin-bottom: 35px; color: var(--text-main);">
+                For thousands of years, Himalayan ascetics, ancient warriors, and indigenous tribes utilized powerful botanical knowledge to push the boundaries of human endurance, recovery, and strength. Somewhere along the way, the sports industry forgot these roots, replacing Earth's most powerful adaptogens with synthetic chemicals and artificial stimulants.
+            </p>
+            <p style="font-size: 1.3rem; line-height: 2; margin-bottom: 35px; color: var(--text-main);">
+                We are here to reclaim that knowledge. What started as a search for clean, chemical-free fuel for endurance athletes has evolved into a pioneer of <strong style="color: var(--brand-blue);">Ayurvedic Bio-Fortified Plant Nutrition</strong>. We travel to the most remote research stations across India—from the high altitudes of the Himalayas to the deep forests of the Western Ghats—to source herbs that have been tested not just in our labs, but by centuries of human history.
+            </p>
+            <p style="font-size: 1.4rem; line-height: 2; font-weight: 600; color: var(--brand-gold); margin-top: 50px;">
+                At Kaava, we don't just formulate. We resurrect the forgotten blueprints of athletic dominance. We unapologetically bridge the gap between raw, ancient Indian wisdom and cutting-edge sports science. This is our heritage, engineered for your performance.
+            </p>
+        </div>
+
+        <div class="story-content scroll-3d" style="text-align: center; background: rgba(10, 15, 25, 0.75); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); padding: 60px 50px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 20px 40px rgba(0,0,0,0.6); margin-top: 60px;">
+            <h3 style="color: var(--brand-gold); font-size: 2.5rem; margin-bottom: 40px; text-transform: uppercase;">The Kaava Foundation</h3>
+            
+            <p style="font-size: 1.3rem; line-height: 2; margin-bottom: 35px; color: var(--text-main);">
+                Performance is not a privilege; it is a human right. Through the <strong>Kaava Foundation</strong>, we are committed to democratizing elite sports nutrition. We actively partner with grassroots sports clubs, local akharas, and rural athletic programs across India to ensure that raw talent is never held back by a lack of proper nourishment.
+            </p>
+            <p style="font-size: 1.3rem; line-height: 2; color: var(--text-main);">
+                By sourcing directly from indigenous farmers and rural collectives, we not only preserve ancient agricultural practices but also empower the very communities that safeguard this botanical wisdom. The Kaava Foundation is our pledge to elevate every athlete, from remote villages to the global stage, fueling the next generation of Indian champions.
+            </p>
+
+            <div style="margin-top: 50px; padding-top: 50px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <h4 style="font-size: 1.8rem; color: var(--brand-blue); margin-bottom: 20px; font-family: var(--font-head); text-transform: uppercase;">Collaborate With Us</h4>
+                <p style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 40px; line-height: 1.8;">
+                    Whether you're a grassroot sports academy, an indigenous farming collective, or an organization wanting to support our mission—we would love to hear from you. Let's build the future of Indian sports together.
+                </p>
+                <a href="#contact" class="cta-btn" style="text-decoration: none;">Reach Out To Us</a>
+            </div>
+        </div>
+    </section>
+
+
+
+    <section id="contact">
+        <div class="section-header scroll-3d">
+            <h2>GET IN TOUCH</h2>
+        </div>
+        <div class="contact-split scroll-3d">
+            <div class="contact-info">
+                <h2>Contact Us</h2>
+                <p style="margin-bottom: 40px; color: var(--text-muted);">Reach out to us for all your nutrition needs.</p>
+                <p style="margin-bottom: 20px;">✉️ support@kaavanutrition.in</p>
+                <p>📞 98452 01442</p>
+            </div>
+            <div class="contact-form-wrapper">
+                <form id="contact-form">
+                    <label style="color:var(--brand-blue); font-weight:bold; font-size:0.8rem;">EMAIL *</label>
+                    <input type="email" name="email" id="email" placeholder="athlete@example.com" required>
+                    <label style="color:var(--brand-blue); font-weight:bold; font-size:0.8rem;">NAME *</label>
+                    <input type="text" name="name" id="name" placeholder="Your Full Name" required>
+                    <label style="color:var(--brand-blue); font-weight:bold; font-size:0.8rem;">MESSAGE *</label>
+                    <textarea name="message" id="message" rows="4" placeholder="How can we help?" required></textarea>
+
+                    <button type="submit" class="cta-btn" id="submit-btn" style="border:none;">Submit</button>
+                    <p id="form-status" style="margin-top: 15px; text-align: center; font-weight: bold; display: none;"></p>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div style="font-family: var(--font-head); font-size: 2rem; color: var(--brand-gold); margin-bottom:20px;">KAAVA NUTRITION</div>
+        <p>© 2024. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // HANDLE PRODUCT QUERY PARAM
+        window.addEventListener('load', () => {
+            const params = new URLSearchParams(window.location.search);
+            const product = params.get('product');
+            if (product) {
+                const msgBox = document.getElementById('message');
+                if (msgBox) msgBox.value = 'I want to buy ' + product + '.';
+            }
+        });
+
+        // CONTACT FORM SUBMISSION
+        const contactForm = document.getElementById('contact-form');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const btn = document.getElementById('submit-btn');
+                const statusText = document.getElementById('form-status');
+                const originalBtnText = btn.innerText;
+
+                btn.innerText = 'Sending...';
+                btn.disabled = true;
+
+                const params = new URLSearchParams(new FormData(this));
+                const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhhVC-6zx8lMztUfPdX3cmkmipYhtSUPKGiLMup97akoPjv6qIgDSgtz8f4EzMw3zMiA/exec';
+                
+                fetch(SCRIPT_URL, { method: 'POST', body: params })
+                    .then(() => {
+                        btn.innerText = 'Message Sent!';
+                        statusText.style.display = 'block';
+                        statusText.style.color = '#33ff8c';
+                        statusText.innerText = 'Thanks! We will get back to you shortly.';
+                        this.reset();
+                        setTimeout(() => { btn.innerText = originalBtnText; btn.disabled = false; }, 4000);
+                    })
+                    .catch(() => {
+                        btn.innerText = 'Error';
+                        statusText.style.display = 'block';
+                        statusText.style.color = '#ff4c4c';
+                        statusText.innerText = 'Something went wrong. Please try again.';
+                        setTimeout(() => { btn.innerText = originalBtnText; btn.disabled = false; }, 4000);
+                    });
+            });
+        }
+
+        // THEME
+        const body = document.body;
+        let isLight = localStorage.getItem('theme') === 'light';
+        if (isLight) body.classList.add('light-mode');
+
+        function toggleTheme() {
+            isLight = !isLight;
+            body.classList.toggle('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            if (window.updateSceneColors) window.updateSceneColors(isLight);
+        }
+
+        // --- NEW 3D BACKGROUND LOGIC ---
+        const init3DBackground = () => {
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            // Expose scene to global scope for theme switching
+            window.threeScene = scene;
+            // Matching dark mode/light mode fog
+            scene.fog = new THREE.FogExp2(0x0b1016, 0.04);
+
+            // CONFIG from Lab
+            const CONFIG = {
+                particleCount: 60000,
+                particleSize: 0.012,
+                color: 0xFE9D00,
+                loadScale: 5.0,
+                modelList: [
+                    'sprinter 3d model.glb',
+                    'swimming figure 3d model.glb',
+                    'soccer player 3d model.glb',
+                    'cricket player 3d model.glb',
+                    'tennis player 3d model.glb'
+                ],
+                cameraZ: 6
+            };
+
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(2, 0.5, CONFIG.cameraZ);
+            camera.lookAt(0, 0, 0);
+
+            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.innerHTML = ''; // Clear any existing
+            container.appendChild(renderer.domElement);
+
+            // MATERIAL
+            const particleMat = new THREE.PointsMaterial({
+                color: CONFIG.color,
+                size: CONFIG.particleSize,
+                map: null,
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 0.9,
+                blending: THREE.NormalBlending,
+                depthWrite: true
+            });
+
+            let particlesMesh = null;
+            const modelSnapshots = [];
+            let scrollPercent = 0;
+
+            // MOUSE INTERACTION STATE
+            const mouse = new THREE.Vector2(-99, -99); // Offscreen start
+            const raycaster = new THREE.Raycaster();
+            const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0); // Plane at z=0 to project mouse onto
+
+            window.addEventListener('mousemove', (e) => {
+                // Normalized Device Coordinates (-1 to +1)
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            });
+
+            // --- HELPERS ---
+            function voxelSample(rawPositions, voxelSize) {
+                const voxelMap = new Map();
+                const result = [];
+                for (let i = 0; i < rawPositions.length; i += 3) {
+                    const x = rawPositions[i];
+                    const y = rawPositions[i + 1];
+                    const z = rawPositions[i + 2];
+                    const kx = Math.round(x / voxelSize);
+                    const ky = Math.round(y / voxelSize);
+                    const kz = Math.round(z / voxelSize);
+                    const key = `${kx},${ky},${kz}`;
+                    if (!voxelMap.has(key)) {
+                        voxelMap.set(key, true);
+                        result.push(x, y, z);
+                    }
+                }
+                return new Float32Array(result);
+            }
+
+            function shuffleArray(array) {
+                for (let i = array.length / 3 - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    const ix = i * 3; const jx = j * 3;
+                    const tx = array[ix]; array[ix] = array[jx]; array[jx] = tx;
+                    const ty = array[ix + 1]; array[ix + 1] = array[jx + 1]; array[jx + 1] = ty;
+                    const tz = array[ix + 2]; array[ix + 2] = array[jx + 2]; array[jx + 2] = tz;
+                }
+                return array;
+            }
+
+            function normalizeToFixedCount(rawPositions, targetCount) {
+                let uniquePoints = voxelSample(rawPositions, 0.015);
+                uniquePoints = shuffleArray(uniquePoints);
+                const result = new Float32Array(targetCount * 3);
+                const sourcePoints = uniquePoints.length > 0 ? uniquePoints : rawPositions;
+                const totalPoints = sourcePoints.length / 3;
+                if (totalPoints === 0) return result;
+                for (let i = 0; i < targetCount; i++) {
+                    const srcIndex = i % totalPoints;
+                    result[i * 3 + 0] = sourcePoints[srcIndex * 3 + 0];
+                    result[i * 3 + 1] = sourcePoints[srcIndex * 3 + 1];
+                    result[i * 3 + 2] = sourcePoints[srcIndex * 3 + 2];
+                }
+                return result;
+            }
+
+            function easeInOutCubic(x) {
+                return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+            }
+
+            function updateMorph(sp) {
+                if (!particlesMesh || modelSnapshots.length < 2) return;
+                const numSegments = modelSnapshots.length - 1;
+                const floatIndex = sp * numSegments;
+                let currentIndex = Math.floor(floatIndex);
+                let nextIndex = currentIndex + 1;
+                if (currentIndex >= numSegments) { currentIndex = numSegments - 1; nextIndex = numSegments; }
+                if (currentIndex < 0) currentIndex = 0;
+
+                let linearFactor = floatIndex - currentIndex;
+                const mixFactor = easeInOutCubic(linearFactor);
+
+                const sourcePos = modelSnapshots[currentIndex];
+                const targetPos = modelSnapshots[nextIndex];
+                const currentArr = particlesMesh.geometry.attributes.position.array;
+
+                for (let i = 0; i < CONFIG.particleCount; i++) {
+                    const ix = i * 3;
+                    const ax = sourcePos[ix]; const ay = sourcePos[ix + 1]; const az = sourcePos[ix + 2];
+                    const bx = targetPos[ix]; const by = targetPos[ix + 1]; const bz = targetPos[ix + 2];
+
+                    let x = ax + (bx - ax) * mixFactor;
+                    let y = ay + (by - ay) * mixFactor;
+                    let z = az + (bz - az) * mixFactor;
+
+                    currentArr[ix] = x;
+                    currentArr[ix + 1] = y;
+                    currentArr[ix + 2] = z;
+                }
+                particlesMesh.geometry.attributes.position.needsUpdate = true;
+                particlesMesh.rotation.y = sp * Math.PI * 0.5;
+            }
+
+            // --- LOADER ---
+            const loader = new THREE.GLTFLoader();
+            const modelsPath = '3d models/';
+
+            function extractPoints(gltf, filename) {
+                let extractedPos = [];
+                gltf.scene.traverse((child) => {
+                    if (child.isMesh) {
+                        child.geometry.scale(CONFIG.loadScale, CONFIG.loadScale, CONFIG.loadScale);
+                        child.geometry.center();
+                        // Rotation Logic - Check using original space-separated names or partial matches
+                        if (filename.includes('swimming')) {
+                            child.geometry.rotateY(Math.PI / 2);
+                            child.geometry.rotateX(Math.PI / 8);
+                        } else if (filename.includes('sprinter')) {
+                            child.geometry.rotateY(-Math.PI / 3);
+                        } else {
+                            child.geometry.rotateY(-Math.PI / 4.5);
+                        }
+                        const posAttr = child.geometry.attributes.position;
+                        for (let i = 0; i < posAttr.count; i++) {
+                            extractedPos.push(posAttr.getX(i), posAttr.getY(i), posAttr.getZ(i));
+                        }
+                    }
+                });
+                return extractedPos;
+            }
+
+            async function loadModels() {
+                // Original filenames as requested by user
+                const remappedList = [
+                    'sprinter 3d model.glb',
+                    'swimming figure 3d model.glb',
+                    'soccer player 3d model.glb',
+                    'cricket player 3d model.glb',
+                    'tennis player 3d model.glb'
+                ];
+
+                const loadPromises = remappedList.map((filename) => {
+                    return new Promise((resolve) => {
+                        // Critical: Use encodeURIComponent to handle spaces in URLs properly
+                        loader.load(modelsPath + encodeURIComponent(filename), (gltf) => {
+                            resolve({ gltf, filename });
+                        }, undefined, (err) => resolve(null));
+                    });
+                });
+
+                const results = await Promise.all(loadPromises);
+
+                // ORDER MATTERS: We must map back to the original list order
+                // Promise.all preserves order of input array, so remappedList order is preserved.
+                results.forEach((res) => {
+                    if (res && res.gltf) {
+                        const raw = extractPoints(res.gltf, res.filename);
+                        const norm = normalizeToFixedCount(raw, CONFIG.particleCount);
+                        modelSnapshots.push(norm);
+                    } else {
+                        // Fallback cube
+                        const boxPts = [];
+                        for (let k = 0; k < CONFIG.particleCount * 3; k++) boxPts.push((Math.random() - 0.5) * 5);
+                        modelSnapshots.push(new Float32Array(boxPts));
+                    }
+                });
+
+                // Create Mesh
+                const geometry = new THREE.BufferGeometry();
+                const startPos = new Float32Array(CONFIG.particleCount * 3);
+                if (modelSnapshots.length > 0) startPos.set(modelSnapshots[0]);
+                geometry.setAttribute('position', new THREE.BufferAttribute(startPos, 3));
+                particlesMesh = new THREE.Points(geometry, particleMat);
+                scene.add(particlesMesh);
+
+                animate();
+            }
+
+            loadModels();
+
+            // LISTEN TO SCROLL
+            window.addEventListener('scroll', () => {
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const sy = window.scrollY;
+                // Clamp 0 to 1
+                scrollPercent = Math.max(0, Math.min(1, sy / docHeight));
+            });
+
+            // ANIMATION LOOP
+            function animate() {
+                requestAnimationFrame(animate);
+                updateMorph(scrollPercent);
+                renderer.render(scene, camera);
+            }
+
+            // COLOR MODE LISTENER (Existing site feature)
+            window.updateSceneColors = (light) => {
+                const bgColor = light ? 0xe4e1d9 : 0x0b1016;
+                scene.fog.color.setHex(bgColor);
+
+                // Particle Color Update
+                if (particlesMesh && particlesMesh.material) {
+                    // Light Mode: Dark Navy (#131b26) | Dark Mode: Gold (#FE9D00)
+                    const pColor = light ? 0x131b26 : 0xFE9D00;
+                    particlesMesh.material.color.setHex(pColor);
+                }
+            };
+
+            // Resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        };
+        init3DBackground();
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+        });
+        document.querySelectorAll('.scroll-3d').forEach(el => observer.observe(el));
+    </script>
+</body>
+</html>

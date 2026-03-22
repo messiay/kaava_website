@@ -4,7 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaava Nutrition | Electric Kinetic</title>
+    <title>Kaava Nutrition | Ancient India. Elite Performance.</title>
+    <meta name="description" content="India's Premiere Ayurvedic Sports Nutrition. Kaava bridges the gap between raw, ancient Indian wisdom and cutting-edge sports science.">
+    <meta name="keywords" content="Kaava, nutrition, ayurveda, sports, performance, endurance, bio-available">
+    <meta property="og:title" content="Kaava Nutrition | Ancient India. Elite Performance.">
+    <meta property="og:description" content="India's Premiere Ayurvedic Sports Nutrition. Kaava bridges the gap between raw, ancient Indian wisdom and cutting-edge sports science.">
+    <meta property="og:image" content="https://kaavanutrition.in/logo.png">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kaavanutrition.in/">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Kaava Nutrition | Ancient India. Elite Performance.">
+    <meta name="twitter:description" content="India's Premiere Ayurvedic Sports Nutrition. Kaava bridges the gap between raw, ancient Indian wisdom and cutting-edge sports science.">
+    <meta name="twitter:image" content="https://kaavanutrition.in/logo.png">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -833,9 +844,10 @@
             KAAVA
         </div>
         <div class="nav-links">
-            <a href="#products">Products</a>
-            <a href="#rnd">R&D</a>
-            <a href="#contact">Contact</a>
+            <a href="products.html">Products</a>
+            <a href="our-story.html">Our Story</a>
+            <a href="about.html">R&D</a>
+            <a href="about.html#contact">Contact</a>
             <button class="theme-toggle" onclick="toggleTheme()">Mode</button>
         </div>
     </nav>
@@ -848,6 +860,9 @@
                 <span class="text-part">KAAVA NUTRITION</span>
                 <span class="reveal-part">SPORTS NUTRITION REDEFINED</span>
             </h2>
+            <p style="font-size: 1.5rem; color: var(--text-muted); text-transform: uppercase; margin-top:20px; text-align: center; letter-spacing: 2px;">
+                India's Premiere Ayurvedic Sports Nutrition
+            </p>
         </div>
 
         <div class="hero-content" id="hero-fade">
@@ -859,10 +874,10 @@
     <section id="ingredients"
         style="position: relative; padding: 100px 5%; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 10;">
         <div class="section-header scroll-3d">
-            <h2>POWERED BY NATURE</h2>
-            <p style="text-align: center; color: var(--text-muted); max-width: 600px; margin: 0 auto 50px;">
-                Indigenous superfoods and adaptogens, curated for modern performance.
-                Hover to discover their secrets.
+            <h2>THE POWER OF AYURVEDA</h2>
+            <p style="text-align: center; color: var(--text-muted); max-width: 600px; margin: 0 auto 50px; font-size: 1.2rem; line-height: 1.6;">
+                Centuries of lost Indian botanical knowledge, scientifically validated for modern athletic dominance.<br>
+                Hover to discover their ancient secrets.
             </p>
         </div>
 
@@ -1411,10 +1426,6 @@
             });
         </script>
 
-        <!-- EXPANDED MODAL -->
-        <!-- EXPANDED MODAL WRAPPER -->
-
-
         <section id="rnd">
             <div class="section-header scroll-3d">
                 <h2>R&D</h2>
@@ -1473,6 +1484,14 @@
             </div>
         </section>
 
+
+
+        <!-- EXPANDED MODAL -->
+        <!-- EXPANDED MODAL WRAPPER -->
+
+
+
+
         <section id="proof"
             style="padding: 100px 5%; background: linear-gradient(to top, rgba(0,0,0,0.4), transparent); border-radius: 30px; margin: 0 20px;">
             <div class="section-header scroll-3d">
@@ -1504,6 +1523,8 @@
                 </div>
             </div>
         </section>
+
+
 
         <section id="contact">
             <div class="contact-split scroll-3d">
@@ -1587,6 +1608,7 @@
                 </div>
             </div>
         </div>
+
         <!-- SCRIPT RELOCATED TO END OF BODY -->
         <script>
             // MODAL ELEMENTS (Now safely available)
@@ -1671,11 +1693,16 @@
                 }
             }
 
+
+
             const body = document.body;
-            let isLight = false;
+            let isLight = localStorage.getItem('theme') === 'light';
+            if (isLight) body.classList.add('light-mode');
+
             function toggleTheme() {
                 isLight = !isLight;
                 body.classList.toggle('light-mode');
+                localStorage.setItem('theme', isLight ? 'light' : 'dark');
                 if (window.updateSceneColors) window.updateSceneColors(isLight);
             }
 
@@ -1984,6 +2011,7 @@
                     }
                 };
 
+                // Resize
                 window.addEventListener('resize', () => {
                     camera.aspect = window.innerWidth / window.innerHeight;
                     camera.updateProjectionMatrix();
@@ -1991,16 +2019,7 @@
                 });
             };
 
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', init3DBackground);
-            } else {
-                init3DBackground();
-            }
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
-            }, { threshold: 0.1 });
-            document.querySelectorAll('.scroll-3d').forEach(el => observer.observe(el));
+            init3DBackground();
 
             // --- CONTACT FORM AJAX SUBMISSION ---
             const contactForm = document.getElementById('contact-form');
@@ -2063,6 +2082,19 @@
                         });
                 });
             }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init3DBackground);
+            } else {
+                init3DBackground();
+            }
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+            }, { threshold: 0.1 });
+            document.querySelectorAll('.scroll-3d').forEach(el => observer.observe(el));
+
+
         </script>
 </body>
 
