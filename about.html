@@ -268,6 +268,7 @@
                     <label style="color:var(--brand-blue); font-weight:bold; font-size:0.8rem;">MESSAGE *</label>
                     <textarea name="message" id="message" rows="4" placeholder="How can we help?" required></textarea>
 
+                    <input type="text" name="honeypot" id="honeypot" style="display:none !important" tabindex="-1" autocomplete="off">
                     <button type="submit" class="cta-btn" id="submit-btn" style="border:none;">Submit</button>
                     <p id="form-status" style="margin-top: 15px; text-align: center; font-weight: bold; display: none;"></p>
                 </form>
@@ -296,6 +297,20 @@
         if (contactForm) {
             contactForm.addEventListener('submit', function (e) {
                 e.preventDefault();
+
+                // Honeypot check
+                const honeypot = document.getElementById('honeypot');
+                if (honeypot && honeypot.value) {
+                    const btn = document.getElementById('submit-btn');
+                    const statusText = document.getElementById('form-status');
+                    btn.innerText = 'Message Sent!';
+                    statusText.style.display = 'block';
+                    statusText.style.color = '#33ff8c';
+                    statusText.innerText = 'Thanks! We will get back to you shortly.';
+                    this.reset();
+                    return;
+                }
+
                 const btn = document.getElementById('submit-btn');
                 const statusText = document.getElementById('form-status');
                 const originalBtnText = btn.innerText;

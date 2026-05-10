@@ -1577,6 +1577,8 @@
                         <input type="hidden" name="_template" value="box">
                         <input type="hidden" name="_replyto" id="_replyto">
 
+                        <input type="text" name="honeypot" id="honeypot" style="display:none !important" tabindex="-1" autocomplete="off">
+
                         <button type="submit" class="cta-btn" id="submit-btn"
                             style="width:100%; border:none; cursor:pointer;">Submit</button>
                         <p id="form-status"
@@ -2050,6 +2052,21 @@
             if (contactForm) {
                 contactForm.addEventListener('submit', function (e) {
                     e.preventDefault();
+
+                    // Honeypot check
+                    const honeypot = document.getElementById('honeypot');
+                    if (honeypot && honeypot.value) {
+                        console.log('Bot detected via honeypot.');
+                        // Silently reject: show success to the bot/spammer but don't actually send
+                        const btn = document.getElementById('submit-btn');
+                        const statusText = document.getElementById('form-status');
+                        btn.innerText = 'Message Sent!';
+                        statusText.style.display = 'block';
+                        statusText.style.color = '#33ff8c';
+                        statusText.innerText = 'Thanks for reaching out! We will get back to you shortly.';
+                        this.reset();
+                        return;
+                    }
 
                     const btn = document.getElementById('submit-btn');
                     const statusText = document.getElementById('form-status');
