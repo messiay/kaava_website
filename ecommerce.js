@@ -294,45 +294,18 @@
                             <path d="M22.5 9.2c.1.5.1 1.1.1 1.6 0 5.8-3.9 9.9-9.7 9.9-5.7 0-10.3-4.6-10.3-10.3S7.2.1 12.9.1c3.1 0 5.7 1.1 7.7 3L17 6.7c-1.1-1-2.5-1.7-4.1-1.7-3.6 0-6.5 3-6.5 6.7s2.9 6.7 6.5 6.7c4.1 0 5.6-2.9 5.8-4.4h-5.8V9.2h9.2z" fill="#4285F4"/>
                         </svg>
                     </div>
-                    <h2 style="font-size: 1.5rem; font-weight: 400; margin-bottom: 8px; color: #202124; font-family: inherit; text-transform:none; border:none; text-align:center;">Choose an account</h2>
+                    <h2 style="font-size: 1.5rem; font-weight: 400; margin-bottom: 8px; color: #202124; font-family: inherit; text-transform:none; border:none; text-align:center;">Sign in with Google</h2>
                     <p style="font-size: 0.9rem; color: #5f6368; margin-bottom: 25px; text-align:center;">to continue to <strong style="color:#000;">Kaava Nutrition</strong></p>
                     
-                    <div id="google-accounts-list" style="text-align: left; display:flex; flex-direction:column; gap:5px; margin-bottom:25px;">
-                        <div class="google-account-row" data-email="arjun.subbaraman13@gmail.com" data-name="Arjun Subbaraman" style="display:flex; align-items:center; padding:12px; border-bottom: 1px solid #f1f3f4; cursor:pointer; transition: background 0.2s; border-radius: 4px;">
-                            <div style="width:36px; height:36px; border-radius:50%; background:#1565C0; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.1rem; margin-right:12px;">A</div>
-                            <div>
-                                <div style="font-weight:600; font-size:0.9rem; color:#3c4043;">Arjun Subbaraman</div>
-                                <div style="font-size:0.8rem; color:#5f6368;">arjun.subbaraman13@gmail.com</div>
-                            </div>
-                        </div>
-                        <div class="google-account-row" data-email="support@kaavanutrition.in" data-name="Kaava Support" style="display:flex; align-items:center; padding:12px; border-bottom: 1px solid #f1f3f4; cursor:pointer; transition: background 0.2s; border-radius: 4px;">
-                            <div style="width:36px; height:36px; border-radius:50%; background:#2E7D32; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.1rem; margin-right:12px;">K</div>
-                            <div>
-                                <div style="font-weight:600; font-size:0.9rem; color:#3c4043;">Kaava Support</div>
-                                <div style="font-size:0.8rem; color:#5f6368;">support@kaavanutrition.in</div>
-                            </div>
-                        </div>
-                        <div class="google-account-row" id="google-use-another-row" style="display:flex; align-items:center; padding:12px; cursor:pointer; transition: background 0.2s; border-radius: 4px;">
-                            <div style="width:36px; height:36px; border-radius:50%; background:#f1f3f4; color:#5f6368; display:flex; align-items:center; justify-content:center; margin-right:12px;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                                </svg>
-                            </div>
-                            <div style="font-weight:600; font-size:0.9rem; color:#1a73e8;">Use another account</div>
-                        </div>
-                    </div>
-
-                    <!-- Hidden Custom Email form -->
-                    <div id="google-custom-email-form" style="display:none; text-align: left; margin-bottom: 20px;">
+                    <div id="google-custom-email-form" style="text-align: left; margin-bottom: 20px;">
                         <div style="margin-bottom:15px;">
-                            <input type="email" id="google-custom-email" placeholder="Email Address" style="width:100%; padding:14px; border:1px solid #dadce0; border-radius:4px; font-size:1rem; color:#000; background:white; font-family:inherit;" required>
+                            <input type="email" id="google-custom-email" placeholder="Google Account Email" style="width:100%; padding:14px; border:1px solid #dadce0; border-radius:4px; font-size:1rem; color:#000; background:white; font-family:inherit;" required>
                         </div>
                         <div style="margin-bottom:20px;">
                             <input type="text" id="google-custom-name" placeholder="Full Name" style="width:100%; padding:14px; border:1px solid #dadce0; border-radius:4px; font-size:1rem; color:#000; background:white; font-family:inherit;" required>
                         </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <button id="google-custom-back" type="button" style="background:none; border:none; color:#1a73e8; cursor:pointer; font-weight:600; font-size:0.9rem;">Back</button>
-                            <button id="google-custom-next" type="button" style="background:#1a73e8; color:white; border:none; padding:10px 24px; border-radius:4px; cursor:pointer; font-weight:600; font-size:0.9rem;">Next</button>
+                        <div style="display:flex; justify-content:center; align-items:center;">
+                            <button id="google-custom-next" type="button" style="width:100%; background:#1a73e8; color:white; border:none; padding:14px; border-radius:4px; cursor:pointer; font-weight:600; font-size:0.95rem; text-align:center;">Next</button>
                         </div>
                     </div>
 
@@ -480,50 +453,15 @@
             fetchSimulatedEmails();
         });
 
-        // Google Account Chooser Event Handlers
+        // Google Sign-In Simulation Event Handlers
         const googleChooserClose = document.getElementById('google-chooser-close');
         if (googleChooserClose) {
             googleChooserClose.addEventListener('click', closeAllOverlays);
         }
 
-        // Pre-defined Google account clicked
-        document.querySelectorAll('.google-account-row').forEach(row => {
-            if (row.id === 'google-use-another-row') return;
-            row.addEventListener('click', () => {
-                const name = row.dataset.name;
-                const email = row.dataset.email;
-                closeAllOverlays();
-                showToast('Authenticating with Google Account...', 'info');
-                setTimeout(() => {
-                    apiAuth('/api/auth/google-login', { name, email }, `Logged in as ${email}`);
-                }, 1000);
-            });
-        });
-
-        // Use another Google account tab
-        const useAnotherRow = document.getElementById('google-use-another-row');
-        const customEmailForm = document.getElementById('google-custom-email-form');
-        const accountsList = document.getElementById('google-accounts-list');
-
-        if (useAnotherRow && customEmailForm && accountsList) {
-            useAnotherRow.addEventListener('click', () => {
-                accountsList.style.display = 'none';
-                customEmailForm.style.display = 'block';
-            });
-        }
-
-        // Custom email form back button
-        const customBack = document.getElementById('google-custom-back');
-        if (customBack && customEmailForm && accountsList) {
-            customBack.addEventListener('click', () => {
-                customEmailForm.style.display = 'none';
-                accountsList.style.display = 'flex';
-            });
-        }
-
         // Custom email form submit button
         const customNext = document.getElementById('google-custom-next');
-        if (customNext && customEmailForm) {
+        if (customNext) {
             customNext.addEventListener('click', () => {
                 const emailInput = document.getElementById('google-custom-email');
                 const nameInput = document.getElementById('google-custom-name');
@@ -1078,15 +1016,10 @@
         `;
 
         fallbackBtn.addEventListener('click', () => {
-            // Reset chooser modal state before displaying
-            const customEmailForm = document.getElementById('google-custom-email-form');
-            const accountsList = document.getElementById('google-accounts-list');
-            if (customEmailForm && accountsList) {
-                customEmailForm.style.display = 'none';
-                accountsList.style.display = 'flex';
-                document.getElementById('google-custom-email').value = '';
-                document.getElementById('google-custom-name').value = '';
-            }
+            const emailInput = document.getElementById('google-custom-email');
+            const nameInput = document.getElementById('google-custom-name');
+            if (emailInput) emailInput.value = '';
+            if (nameInput) nameInput.value = '';
             showModal('google-chooser-modal');
         });
 
