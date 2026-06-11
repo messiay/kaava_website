@@ -4,9 +4,14 @@
   "description": "Kaava Nutrition E-Commerce Platform",
   "main": "simple_server.js",
   "scripts": {
-    "start": "node simple_server.js"
+    "start": "node simple_server.js",
+    "dev": "node simple_server.js"
+  },
+  "engines": {
+    "node": ">=18.x"
   },
   "dependencies": {
+    "@upstash/redis": "^1.34.9",
     "express": "^4.19.2",
     "nodemailer": "^6.9.13"
   }
