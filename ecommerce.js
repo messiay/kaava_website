@@ -1,4 +1,4 @@
-// Kaava Nutrition E-Commerce Operations
+// Kaava Nutrition E-Commerce — Customer Shopping Experience
 
 (function () {
     // --- PRODUCT METADATA MAPPING ---
@@ -14,14 +14,9 @@
     function resolveProduct(name) {
         const key = name.toLowerCase().trim();
         if (PRODUCT_MAP[key]) return PRODUCT_MAP[key];
-        
-        // Partial matching
         for (const [k, prod] of Object.entries(PRODUCT_MAP)) {
-            if (key.includes(k) || k.includes(key)) {
-                return prod;
-            }
+            if (key.includes(k) || k.includes(key)) return prod;
         }
-        // Fallback product
         return { name: name, price: 799, img: 'logo.png' };
     }
 
@@ -38,50 +33,42 @@
         setupEventListeners();
         syncAuthState();
         updateCartUI();
-        loadGoogleScript();
     });
 
-    // --- FLY-TO-CART & TOAST NOTIFICATION UTILITIES ---
+    // --- TOAST NOTIFICATIONS ---
     function showToast(message, type = 'info') {
         const container = document.getElementById('toast-container');
         if (!container) return;
-
         const toast = document.createElement('div');
         toast.className = `kaava-toast ${type}`;
-        
         let icon = 'ℹ️';
         if (type === 'success') icon = '✅';
         if (type === 'error') icon = '❌';
-
         toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
         container.appendChild(toast);
-
-        // Slide-in
         setTimeout(() => toast.classList.add('show'), 50);
-
-        // Dismiss
         setTimeout(() => {
             toast.classList.remove('show');
             setTimeout(() => toast.remove(), 400);
-        }, 3000);
+        }, 3500);
     }
 
-    // --- INJECT HTML OVERLAYS DYNAMICALLY ---
+    // --- INJECT ALL HTML OVERLAYS ---
     function injectHtmlElements() {
         // 1. Toast Container
         if (!document.getElementById('toast-container')) {
-            const toastContainer = document.createElement('div');
-            toastContainer.id = 'toast-container';
-            toastContainer.className = 'kaava-toast-container';
-            document.body.appendChild(toastContainer);
+            const tc = document.createElement('div');
+            tc.id = 'toast-container';
+            tc.className = 'kaava-toast-container';
+            document.body.appendChild(tc);
         }
 
         // 2. Overlay Backdrop
         if (!document.getElementById('kaava-overlay')) {
-            const overlay = document.createElement('div');
-            overlay.id = 'kaava-overlay';
-            overlay.className = 'kaava-overlay';
-            document.body.appendChild(overlay);
+            const ov = document.createElement('div');
+            ov.id = 'kaava-overlay';
+            ov.className = 'kaava-overlay';
+            document.body.appendChild(ov);
         }
 
         // 3. Cart Drawer
@@ -91,12 +78,10 @@
             drawer.className = 'cart-drawer';
             drawer.innerHTML = `
                 <div class="cart-header">
-                    <h2>Shopping Cart</h2>
+                    <h2>🛒 Your Cart</h2>
                     <button class="cart-close" id="cart-close-btn">✕</button>
                 </div>
-                <div class="cart-items-list" id="cart-items-list">
-                    <!-- Dynamic Cart Items -->
-                </div>
+                <div class="cart-items-list" id="cart-items-list"></div>
                 <div class="cart-footer">
                     <div class="cart-totals">
                         <div class="total-row">
@@ -107,133 +92,229 @@
                             <span>Shipping</span>
                             <span id="cart-shipping">₹0</span>
                         </div>
+                        <div class="total-row">
+                            <span style="color:var(--text-muted); font-size:0.8rem;">Free shipping on orders above ₹999</span>
+                            <span></span>
+                        </div>
                         <div class="total-row grand-total">
                             <span>Total</span>
                             <span id="cart-total">₹0</span>
                         </div>
                     </div>
                     <button class="cart-checkout-btn" id="cart-checkout-btn">
-                        Proceed To Checkout 🛒
+                        Proceed to Checkout →
                     </button>
                 </div>
             `;
             document.body.appendChild(drawer);
         }
 
-        // 4. Authentication Modal
+        // 4. Auth Modal — Email/Password Only (clean, Amazon-style)
         if (!document.getElementById('auth-modal')) {
             const authModal = document.createElement('div');
             authModal.id = 'auth-modal';
             authModal.className = 'kaava-modal';
             authModal.innerHTML = `
                 <div class="modal-header">
-                    <h2>Account Portal</h2>
+                    <div>
+                        <h2>Welcome to Kaava</h2>
+                        <p style="color:var(--text-muted); font-size:0.85rem; margin-top:4px; font-family:var(--font-body);">Sign in or create your account to continue</p>
+                    </div>
                     <button class="cart-close" id="auth-close-btn">✕</button>
                 </div>
                 <div class="auth-tabs">
-                    <button class="auth-tab active" id="tab-login-btn">Log In</button>
-                    <button class="auth-tab" id="tab-signup-btn">Sign Up</button>
+                    <button class="auth-tab active" id="tab-login-btn">Sign In</button>
+                    <button class="auth-tab" id="tab-signup-btn">Create Account</button>
                 </div>
                 <div class="modal-body">
                     <!-- Login Form -->
-                    <form class="auth-form active" id="login-form">
+                    <form class="auth-form active" id="login-form" autocomplete="on">
                         <div class="input-group">
                             <label>Email Address</label>
-                            <input type="email" id="login-email" placeholder="athlete@example.com" required>
+                            <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email">
                         </div>
                         <div class="input-group">
                             <label>Password</label>
-                            <input type="password" id="login-password" placeholder="••••••••" required>
+                            <input type="password" id="login-password" placeholder="Your password" required autocomplete="current-password">
                         </div>
-                        <button type="submit" class="cta-btn" style="border:none; width:100%; margin-top:10px;">Log In</button>
+                        <button type="submit" class="cta-btn" style="border:none; width:100%; margin-top:5px;">Sign In →</button>
+                        <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; margin-top:18px;">
+                            New to Kaava? <a href="#" id="switch-to-signup" style="color:var(--brand-gold); text-decoration:none; font-weight:bold;">Create an account</a>
+                        </p>
                     </form>
 
                     <!-- Signup Form -->
-                    <form class="auth-form" id="signup-form">
+                    <form class="auth-form" id="signup-form" autocomplete="on">
                         <div class="input-group">
                             <label>Full Name</label>
-                            <input type="text" id="signup-name" placeholder="Your Name" required>
+                            <input type="text" id="signup-name" placeholder="Your full name" required autocomplete="name">
                         </div>
                         <div class="input-group">
                             <label>Email Address</label>
-                            <input type="email" id="signup-email" placeholder="athlete@example.com" required>
+                            <input type="email" id="signup-email" placeholder="you@example.com" required autocomplete="email">
                         </div>
                         <div class="input-group">
                             <label>Password</label>
-                            <input type="password" id="signup-password" placeholder="Min. 6 characters" required minlength="6">
+                            <input type="password" id="signup-password" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password">
                         </div>
-                        <button type="submit" class="cta-btn" style="border:none; width:100%; margin-top:10px;">Create Account</button>
+                        <button type="submit" class="cta-btn" style="border:none; width:100%; margin-top:5px;">Create Account →</button>
+                        <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; margin-top:18px;">
+                            Already have an account? <a href="#" id="switch-to-login" style="color:var(--brand-gold); text-decoration:none; font-weight:bold;">Sign in</a>
+                        </p>
                     </form>
-
-                    <div class="social-login-sep">OR</div>
-                    <div id="google-signin-container" style="min-height: 40px; display: flex; justify-content: center; align-items: center; width: 100%;"></div>
                 </div>
             `;
             document.body.appendChild(authModal);
         }
 
-        // 5. Checkout Modal
+        // 5. Checkout Modal — Multi-step Amazon style
         if (!document.getElementById('checkout-modal')) {
             const checkoutModal = document.createElement('div');
             checkoutModal.id = 'checkout-modal';
             checkoutModal.className = 'kaava-modal';
+            checkoutModal.style.maxWidth = '560px';
             checkoutModal.innerHTML = `
                 <div class="modal-header">
-                    <h2>Checkout Shipping</h2>
+                    <div>
+                        <h2 id="checkout-modal-title">Delivery Details</h2>
+                        <div class="checkout-steps-bar" id="checkout-steps-bar">
+                            <div class="checkout-step-indicator active" id="step-ind-1">
+                                <div class="step-circle">1</div>
+                                <span>Shipping</span>
+                            </div>
+                            <div class="checkout-step-divider"></div>
+                            <div class="checkout-step-indicator" id="step-ind-2">
+                                <div class="step-circle">2</div>
+                                <span>Review</span>
+                            </div>
+                            <div class="checkout-step-divider"></div>
+                            <div class="checkout-step-indicator" id="step-ind-3">
+                                <div class="step-circle">✓</div>
+                                <span>Confirmed</span>
+                            </div>
+                        </div>
+                    </div>
                     <button class="cart-close" id="checkout-close-btn">✕</button>
                 </div>
-                <div class="modal-body">
-                    <form id="checkout-form">
-                        <div class="checkout-summary-box">
-                            <h3 style="color:var(--brand-gold); font-size:1rem; margin-bottom:12px; font-family:var(--font-head);">Order Review</h3>
-                            <div class="checkout-items-mini" id="checkout-items-mini">
-                                <!-- Checkout items -->
-                            </div>
-                            <div style="display:flex; justify-content:space-between; font-weight:bold; color:white; font-size:1.1rem; margin-top:5px;">
-                                <span>Grand Total:</span>
-                                <span id="checkout-grand-total">₹0</span>
-                            </div>
-                        </div>
+                <div class="modal-body" id="checkout-modal-body">
 
-                        <div class="input-group">
-                            <label>Recipient Name</label>
-                            <input type="text" id="ship-name" placeholder="Full Name" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Phone Number</label>
-                            <input type="tel" id="ship-phone" placeholder="10-digit mobile number" required pattern="[0-9]{10}">
-                        </div>
-                        <div class="input-group">
-                            <label>Delivery Address</label>
-                            <input type="text" id="ship-address" placeholder="Street Address, Apartment, Suite" required>
-                        </div>
-                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                            <div class="input-group">
-                                <label>City</label>
-                                <input type="text" id="ship-city" placeholder="City" required>
+                    <!-- STEP 1: Shipping Details -->
+                    <div class="checkout-step active" id="checkout-step-1">
+                        <form id="checkout-form">
+                            <div class="shipping-user-info" id="shipping-user-info" style="display:none;">
+                                <div class="shipping-user-chip">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                    Ordering as <strong id="shipping-as-email"></strong>
+                                </div>
                             </div>
                             <div class="input-group">
-                                <label>State</label>
-                                <input type="text" id="ship-state" placeholder="State" required>
+                                <label>Recipient Full Name</label>
+                                <input type="text" id="ship-name" placeholder="Name on delivery" required>
                             </div>
-                        </div>
-                        <div class="input-group">
-                            <label>PIN / ZIP Code</label>
-                            <input type="text" id="ship-zip" placeholder="6-digit PIN" required pattern="[0-9]{6}">
-                        </div>
+                            <div class="input-group">
+                                <label>Mobile Number</label>
+                                <input type="tel" id="ship-phone" placeholder="10-digit number" required pattern="[0-9]{10}" maxlength="10">
+                            </div>
+                            <div class="input-group">
+                                <label>Street Address</label>
+                                <input type="text" id="ship-address" placeholder="House / Flat / Block No., Street Name" required>
+                            </div>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                                <div class="input-group">
+                                    <label>City</label>
+                                    <input type="text" id="ship-city" placeholder="City" required>
+                                </div>
+                                <div class="input-group">
+                                    <label>State</label>
+                                    <input type="text" id="ship-state" placeholder="State" required>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>PIN Code</label>
+                                <input type="text" id="ship-zip" placeholder="6-digit PIN" required pattern="[0-9]{6}" maxlength="6">
+                            </div>
+                            <button type="submit" class="cta-btn" style="border:none; width:100%; margin-top:5px;" id="shipping-next-btn">
+                                Continue to Review →
+                            </button>
+                        </form>
+                    </div>
 
-                        <div style="color:#81C784; font-size:0.9rem; margin:15px 0; font-weight:bold; text-align:center;">
-                            🚛 Scheduled Delivery: 2 Weeks (Cash on Delivery)
+                    <!-- STEP 2: Order Review -->
+                    <div class="checkout-step" id="checkout-step-2">
+                        <div class="review-section">
+                            <div class="review-block">
+                                <div class="review-block-title">
+                                    <span>📦 Items</span>
+                                </div>
+                                <div id="review-items-list"></div>
+                            </div>
+                            <div class="review-block">
+                                <div class="review-block-title">
+                                    <span>📍 Delivering To</span>
+                                    <button class="review-edit-btn" id="review-edit-address">Edit</button>
+                                </div>
+                                <div id="review-address-text" style="color:var(--text-main); font-size:0.95rem; line-height:1.6;"></div>
+                            </div>
+                            <div class="review-block">
+                                <div class="review-block-title"><span>💳 Payment</span></div>
+                                <div style="color:var(--text-main); font-size:0.95rem;">
+                                    Cash on Delivery (COD)
+                                </div>
+                            </div>
+                            <div class="review-totals" id="review-totals"></div>
+                            <div class="delivery-timing-box">
+                                <span>🚛</span>
+                                <div>
+                                    <div style="font-weight:bold; color:#81C784;">Estimated Delivery: 2 Weeks</div>
+                                    <div style="font-size:0.85rem; color:var(--text-muted); margin-top:3px;" id="review-delivery-date">Arrives by —</div>
+                                </div>
+                            </div>
+                            <button class="cta-btn" id="place-order-btn" style="border:none; width:100%; margin-top:10px;">
+                                Place Order ✓
+                            </button>
+                            <p style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin-top:12px;">
+                                By placing your order you agree to our terms. A confirmation email will be sent to your inbox.
+                            </p>
                         </div>
+                    </div>
 
-                        <button type="submit" class="cta-btn" style="border:none; width:100%;">Place Order</button>
-                    </form>
+                    <!-- STEP 3: Order Confirmation Success -->
+                    <div class="checkout-step" id="checkout-step-3">
+                        <div class="order-success-screen">
+                            <div class="success-checkmark">
+                                <svg viewBox="0 0 52 52" fill="none">
+                                    <circle cx="26" cy="26" r="25" stroke="#33ff8c" stroke-width="2"/>
+                                    <path class="success-check-path" d="M14 27l8 8 16-16" stroke="#33ff8c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </div>
+                            <h2 class="success-title">Order Placed!</h2>
+                            <p class="success-subtitle">Thank you for shopping with Kaava Nutrition.</p>
+                            <div class="success-order-id" id="success-order-id"></div>
+                            <div class="success-email-notice" id="success-email-notice">
+                                A confirmation email has been sent to your inbox.
+                            </div>
+                            <div class="success-details-box" id="success-details-box"></div>
+                            <div class="success-delivery-box">
+                                <span>📅</span>
+                                <div>
+                                    <div style="font-weight:bold;">Expected Delivery</div>
+                                    <div id="success-delivery-date" style="color:#81C784; font-size:1rem; margin-top:3px;"></div>
+                                </div>
+                            </div>
+                            <button class="cta-btn" id="success-view-orders-btn" style="border:none; width:100%; margin-top:20px; background:rgba(253,216,53,0.1); border:1px solid var(--brand-gold); color:var(--brand-gold);">
+                                View My Orders
+                            </button>
+                            <button class="cart-checkout-btn" id="success-continue-btn" style="margin-top:10px; border:1px solid rgba(255,255,255,0.1); color:var(--text-muted);">
+                                Continue Shopping
+                            </button>
+                        </div>
+                    </div>
                 </div>
             `;
             document.body.appendChild(checkoutModal);
         }
 
-        // 6. Profile & Order History Modal
+        // 6. Profile & Order History Modal (customer-only, no admin tabs)
         if (!document.getElementById('profile-modal')) {
             const profileModal = document.createElement('div');
             profileModal.id = 'profile-modal';
@@ -241,119 +322,65 @@
             profileModal.style.maxWidth = '600px';
             profileModal.innerHTML = `
                 <div class="modal-header">
-                    <h2>Customer Dashboard</h2>
+                    <h2>My Account</h2>
                     <button class="cart-close" id="profile-close-btn">✕</button>
                 </div>
-                <div class="auth-tabs">
-                    <button class="auth-tab active" id="profile-tab-orders">Order History</button>
-                    <button class="auth-tab" id="profile-tab-inbox" style="border-left:1px solid var(--card-border);">Admin Email Log</button>
-                </div>
                 <div class="modal-body">
-                    <!-- Profile View -->
+                    <!-- Profile Card -->
                     <div class="profile-details">
-                        <div class="profile-name" id="profile-user-name">Welcome Back!</div>
-                        <div class="profile-email" id="profile-user-email">athlete@kaavanutrition.in</div>
-                        <button class="cta-btn" id="logout-btn" style="border:none; padding: 8px 20px; font-size:0.9rem; width:auto; margin-top:15px; background:rgba(255, 76, 76, 0.1); border:1px solid #ff4c4c; color:#ff4c4c;">Log Out</button>
+                        <div style="display:flex; align-items:center; gap:15px;">
+                            <div class="profile-avatar" id="profile-avatar-circle">A</div>
+                            <div>
+                                <div class="profile-name" id="profile-user-name">Welcome!</div>
+                                <div class="profile-email" id="profile-user-email"></div>
+                            </div>
+                        </div>
+                        <button class="logout-btn" id="logout-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                            Sign Out
+                        </button>
                     </div>
 
-                    <!-- Orders Section -->
+                    <!-- Order History -->
                     <div id="profile-orders-section">
-                        <h3 class="order-history-header">Previous Orders</h3>
-                        <div class="orders-list" id="profile-orders-list">
-                            <!-- Orders dynamic render -->
-                        </div>
-                    </div>
-
-                    <!-- Developer Simulated Admin Inbox Logs -->
-                    <div id="profile-inbox-section" style="display:none;">
-                        <h3 class="order-history-header" style="color:#FDD835;">Simulated Admin Email Logs</h3>
-                        <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:15px; line-height:1.4;">
-                            These are the automated order emails written to the console and saved locally during checkout simulation.
-                        </p>
-                        <div class="orders-list" id="profile-emails-list">
-                            <!-- E-mails logs dynamic render -->
-                        </div>
+                        <h3 class="order-history-header">My Orders</h3>
+                        <div class="orders-list" id="profile-orders-list"></div>
                     </div>
                 </div>
             `;
             document.body.appendChild(profileModal);
         }
 
-        // Google Chooser Modal
-        if (!document.getElementById('google-chooser-modal')) {
-            const chooser = document.createElement('div');
-            chooser.id = 'google-chooser-modal';
-            chooser.className = 'kaava-modal';
-            chooser.style.maxWidth = '400px';
-            chooser.innerHTML = `
-                <div class="modal-body" style="position:relative; padding: 45px 30px; text-align: center; background: #ffffff; color: #202124; font-family: 'Roboto', arial, sans-serif; border-radius:12px;">
-                    <div id="google-chooser-close" style="position:absolute; top:15px; right:20px; font-size:1.2rem; cursor:pointer; color:#5f6368; font-weight:bold;">✕</div>
-                    <div style="display:flex; justify-content:center; margin-bottom:15px;">
-                        <svg width="74" height="24" viewBox="0 0 74 24" fill="none">
-                            <path d="M12.2 5c-1.7 0-3.2.5-4.4 1.5L4.7 3.4C6.7 1.6 9.3.6 12.2.6c5.2 0 9.4 3.7 10.3 8.6h-4.9c-.8-2.3-3-4.2-5.4-4.2z" fill="#EA4335"/>
-                            <path d="M22.5 9.2c.1.5.1 1.1.1 1.6 0 5.8-3.9 9.9-9.7 9.9-5.7 0-10.3-4.6-10.3-10.3S7.2.1 12.9.1c3.1 0 5.7 1.1 7.7 3L17 6.7c-1.1-1-2.5-1.7-4.1-1.7-3.6 0-6.5 3-6.5 6.7s2.9 6.7 6.5 6.7c4.1 0 5.6-2.9 5.8-4.4h-5.8V9.2h9.2z" fill="#4285F4"/>
-                        </svg>
-                    </div>
-                    <h2 style="font-size: 1.5rem; font-weight: 400; margin-bottom: 8px; color: #202124; font-family: inherit; text-transform:none; border:none; text-align:center;">Sign in with Google</h2>
-                    <p style="font-size: 0.9rem; color: #5f6368; margin-bottom: 25px; text-align:center;">to continue to <strong style="color:#000;">Kaava Nutrition</strong></p>
-                    
-                    <div id="google-custom-email-form" style="text-align: left; margin-bottom: 20px;">
-                        <div style="margin-bottom:15px;">
-                            <input type="email" id="google-custom-email" placeholder="Google Account Email" style="width:100%; padding:14px; border:1px solid #dadce0; border-radius:4px; font-size:1rem; color:#000; background:white; font-family:inherit;" required>
-                        </div>
-                        <div style="margin-bottom:20px;">
-                            <input type="text" id="google-custom-name" placeholder="Full Name" style="width:100%; padding:14px; border:1px solid #dadce0; border-radius:4px; font-size:1rem; color:#000; background:white; font-family:inherit;" required>
-                        </div>
-                        <div style="display:flex; justify-content:center; align-items:center;">
-                            <button id="google-custom-next" type="button" style="width:100%; background:#1a73e8; color:white; border:none; padding:14px; border-radius:4px; cursor:pointer; font-weight:600; font-size:0.95rem; text-align:center;">Next</button>
-                        </div>
-                    </div>
-
-                    <div style="font-size:0.75rem; color:#757575; line-height:1.4; text-align:left; margin-top:20px;">
-                        To continue, Google will share your name, email address, profile picture, and personal info with Kaava Nutrition.
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(chooser);
-        }
-
-        // 7. Inject Cart/Account buttons into Header Nav
+        // 7. Inject Nav Buttons
         injectNavButtons();
     }
 
     function injectNavButtons() {
         const navLinks = document.querySelector('.nav-links');
-        if (!navLinks) return;
+        if (!navLinks || document.getElementById('nav-cart-link')) return;
 
-        // Check if already injected
-        if (document.getElementById('nav-cart-link')) return;
-
-        // Create buttons
         const cartButton = document.createElement('button');
         cartButton.id = 'nav-cart-link';
         cartButton.className = 'nav-cart-btn';
+        cartButton.title = 'Shopping Cart';
         cartButton.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="9" cy="21" r="1"></circle>
-                <circle cx="20" cy="21" r="1"></circle>
+                <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
             </svg>
             <span class="cart-badge" id="cart-badge-count" style="display:none;">0</span>
         `;
-        cartButton.title = 'Open Shopping Cart';
 
         const profileButton = document.createElement('button');
         profileButton.id = 'nav-profile-link';
         profileButton.className = 'nav-profile-btn';
+        profileButton.title = 'My Account';
         profileButton.innerHTML = `
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle>
             </svg>
         `;
-        profileButton.title = 'Account Dashboard';
 
-        // Insert before mode-toggle button
         const themeBtn = navLinks.querySelector('.theme-toggle');
         if (themeBtn) {
             navLinks.insertBefore(cartButton, themeBtn);
@@ -364,56 +391,50 @@
         }
     }
 
-    // --- SETUP EVENT LISTENERS ---
+    // --- SETUP ALL EVENT LISTENERS ---
     function setupEventListeners() {
         const overlay = document.getElementById('kaava-overlay');
-        const cartDrawer = document.getElementById('cart-drawer');
-        const authModal = document.getElementById('auth-modal');
-        const checkoutModal = document.getElementById('checkout-modal');
-        const profileModal = document.getElementById('profile-modal');
 
-        // Nav click hooks
-        const navCart = document.getElementById('nav-cart-link');
-        const navProfile = document.getElementById('nav-profile-link');
-        if (navCart) navCart.addEventListener('click', toggleCartDrawer);
-        if (navProfile) navProfile.addEventListener('click', handleProfileClick);
+        // Nav buttons
+        document.getElementById('nav-cart-link').addEventListener('click', toggleCartDrawer);
+        document.getElementById('nav-profile-link').addEventListener('click', handleProfileClick);
 
-        // Close button hooks
+        // Close buttons
         document.getElementById('cart-close-btn').addEventListener('click', closeAllOverlays);
         document.getElementById('auth-close-btn').addEventListener('click', closeAllOverlays);
         document.getElementById('checkout-close-btn').addEventListener('click', closeAllOverlays);
         document.getElementById('profile-close-btn').addEventListener('click', closeAllOverlays);
         overlay.addEventListener('click', closeAllOverlays);
 
-        // Checkout Trigger
+        // Cart checkout trigger
         document.getElementById('cart-checkout-btn').addEventListener('click', handleCheckoutTrigger);
 
-        // Authentication form tab switches
+        // Auth tabs
         const tabLogin = document.getElementById('tab-login-btn');
         const tabSignup = document.getElementById('tab-signup-btn');
         const formLogin = document.getElementById('login-form');
         const formSignup = document.getElementById('signup-form');
 
-        tabLogin.addEventListener('click', () => {
-            tabLogin.classList.add('active');
-            tabSignup.classList.remove('active');
-            formLogin.classList.add('active');
-            formSignup.classList.remove('active');
-        });
+        function switchToLogin() {
+            tabLogin.classList.add('active'); tabSignup.classList.remove('active');
+            formLogin.classList.add('active'); formSignup.classList.remove('active');
+        }
+        function switchToSignup() {
+            tabSignup.classList.add('active'); tabLogin.classList.remove('active');
+            formSignup.classList.add('active'); formLogin.classList.remove('active');
+        }
 
-        tabSignup.addEventListener('click', () => {
-            tabSignup.classList.add('active');
-            tabLogin.classList.remove('active');
-            formSignup.classList.add('active');
-            formLogin.classList.remove('active');
-        });
+        tabLogin.addEventListener('click', switchToLogin);
+        tabSignup.addEventListener('click', switchToSignup);
+        document.getElementById('switch-to-signup').addEventListener('click', (e) => { e.preventDefault(); switchToSignup(); });
+        document.getElementById('switch-to-login').addEventListener('click', (e) => { e.preventDefault(); switchToLogin(); });
 
-        // Authentication API Submissions
+        // Auth form submissions
         formLogin.addEventListener('submit', (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-            apiAuth('/api/auth/login', { email, password });
+            apiAuth('/api/auth/login', { email, password }, `Welcome back!`);
         });
 
         formSignup.addEventListener('submit', (e) => {
@@ -421,114 +442,61 @@
             const name = document.getElementById('signup-name').value;
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
-            apiAuth('/api/auth/signup', { name, email, password });
+            apiAuth('/api/auth/signup', { name, email, password }, `Account created — welcome to Kaava!`);
         });
-
-        // Google authentication will be handled via GIS rendering callback or dynamic simulator binding.
 
         // Logout
         document.getElementById('logout-btn').addEventListener('click', handleLogout);
 
-        // Checkout Order Submission
-        document.getElementById('checkout-form').addEventListener('submit', handleOrderSubmit);
-
-        // Profile Tab switches
-        const tabOrders = document.getElementById('profile-tab-orders');
-        const tabInbox = document.getElementById('profile-tab-inbox');
-        const secOrders = document.getElementById('profile-orders-section');
-        const secInbox = document.getElementById('profile-inbox-section');
-
-        tabOrders.addEventListener('click', () => {
-            tabOrders.classList.add('active');
-            tabInbox.classList.remove('active');
-            secOrders.style.display = 'block';
-            secInbox.style.display = 'none';
+        // Checkout Step 1 form submit (moves to review)
+        document.getElementById('checkout-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            goToCheckoutStep2();
         });
 
-        tabInbox.addEventListener('click', () => {
-            tabInbox.classList.add('active');
-            tabOrders.classList.remove('active');
-            secInbox.style.display = 'block';
-            secOrders.style.display = 'none';
-            fetchSimulatedEmails();
+        // Step 2: Edit address button
+        document.getElementById('review-edit-address').addEventListener('click', () => goToCheckoutStep(1));
+
+        // Step 2: Place order
+        document.getElementById('place-order-btn').addEventListener('click', handleOrderSubmit);
+
+        // Success screen buttons
+        document.getElementById('success-view-orders-btn').addEventListener('click', () => {
+            closeAllOverlays();
+            fetchOrderHistory();
+            showModal('profile-modal');
         });
-
-        // Google Sign-In Simulation Event Handlers
-        const googleChooserClose = document.getElementById('google-chooser-close');
-        if (googleChooserClose) {
-            googleChooserClose.addEventListener('click', closeAllOverlays);
-        }
-
-        // Custom email form submit button
-        const customNext = document.getElementById('google-custom-next');
-        if (customNext) {
-            customNext.addEventListener('click', () => {
-                const emailInput = document.getElementById('google-custom-email');
-                const nameInput = document.getElementById('google-custom-name');
-                const email = emailInput.value.trim();
-                const name = nameInput.value.trim();
-
-                if (!email || !email.includes('@')) {
-                    showToast('Please enter a valid email address.', 'error');
-                    emailInput.focus();
-                    return;
-                }
-                if (!name) {
-                    showToast('Please enter your name.', 'error');
-                    nameInput.focus();
-                    return;
-                }
-
-                closeAllOverlays();
-                showToast('Authenticating with Google Account...', 'info');
-                setTimeout(() => {
-                    apiAuth('/api/auth/google-login', { name, email }, `Logged in as ${email}`);
-                }, 1000);
-            });
-        }
+        document.getElementById('success-continue-btn').addEventListener('click', closeAllOverlays);
     }
 
-    // --- DRAWER & MODAL TOGGLERS ---
+    // --- MODAL / DRAWER CONTROLS ---
     function toggleCartDrawer() {
-        const cartDrawer = document.getElementById('cart-drawer');
+        const drawer = document.getElementById('cart-drawer');
         const overlay = document.getElementById('kaava-overlay');
-        
-        closeAllOverlays(); // Close modals first
-        
-        cartDrawer.classList.toggle('active');
-        if (cartDrawer.classList.contains('active')) {
-            overlay.classList.add('active');
-        } else {
-            overlay.classList.remove('active');
-        }
+        closeAllOverlays();
+        drawer.classList.toggle('active');
+        if (drawer.classList.contains('active')) overlay.classList.add('active');
+        else overlay.classList.remove('active');
     }
 
     function showModal(modalId) {
         closeAllOverlays();
         const modal = document.getElementById(modalId);
         const overlay = document.getElementById('kaava-overlay');
-        if (modal) {
-            modal.classList.add('active');
-            overlay.classList.add('active');
-        }
+        if (modal) { modal.classList.add('active'); overlay.classList.add('active'); }
     }
 
     function closeAllOverlays() {
-        document.getElementById('cart-drawer').classList.remove('active');
-        document.getElementById('auth-modal').classList.remove('active');
-        document.getElementById('checkout-modal').classList.remove('active');
-        document.getElementById('profile-modal').classList.remove('active');
-        if (document.getElementById('google-chooser-modal')) {
-            document.getElementById('google-chooser-modal').classList.remove('active');
-        }
+        ['cart-drawer', 'auth-modal', 'checkout-modal', 'profile-modal'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('active');
+        });
         document.getElementById('kaava-overlay').classList.remove('active');
     }
 
     // --- CART LOGIC ---
     window.orderProduct = function (productName) {
-        // Intercept global call
         if (typeof window.closeCard === 'function') window.closeCard();
-        
         const item = resolveProduct(productName);
         addToCart(item.name, item.price, item.img);
     };
@@ -540,152 +508,202 @@
         } else {
             state.cart.push({ name, price, img, quantity: 1 });
         }
-        
         localStorage.setItem('kaava_cart', JSON.stringify(state.cart));
         updateCartUI();
         showToast(`${name} added to cart!`, 'success');
-        
-        // Open drawer automatically for micro-interaction satisfaction
         setTimeout(toggleCartDrawer, 300);
     }
 
     function updateQty(name, delta) {
         const item = state.cart.find(i => i.name === name);
-        if (item) {
-            item.quantity += delta;
-            if (item.quantity <= 0) {
-                state.cart = state.cart.filter(i => i.name !== name);
-            }
-            localStorage.setItem('kaava_cart', JSON.stringify(state.cart));
-            updateCartUI();
-        }
+        if (!item) return;
+        item.quantity += delta;
+        if (item.quantity <= 0) state.cart = state.cart.filter(i => i.name !== name);
+        localStorage.setItem('kaava_cart', JSON.stringify(state.cart));
+        updateCartUI();
     }
 
     function removeItem(name) {
         state.cart = state.cart.filter(i => i.name !== name);
         localStorage.setItem('kaava_cart', JSON.stringify(state.cart));
         updateCartUI();
-        showToast('Item removed', 'info');
+        showToast('Item removed from cart', 'info');
     }
 
     function updateCartUI() {
         const list = document.getElementById('cart-items-list');
         const badge = document.getElementById('cart-badge-count');
-        const subtotalText = document.getElementById('cart-subtotal');
-        const shippingText = document.getElementById('cart-shipping');
-        const totalText = document.getElementById('cart-total');
+        const subtotalEl = document.getElementById('cart-subtotal');
+        const shippingEl = document.getElementById('cart-shipping');
+        const totalEl = document.getElementById('cart-total');
+        if (!list) return;
 
         if (state.cart.length === 0) {
             list.innerHTML = `
                 <div class="cart-empty-state">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="9" cy="21" r="1"></circle>
-                        <circle cx="20" cy="21" r="1"></circle>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle>
                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
                     </svg>
-                    <p>Your performance cart is empty.</p>
+                    <p>Your cart is empty</p>
+                    <a href="products.html" style="color:var(--brand-gold); text-decoration:none; font-weight:bold; font-size:0.9rem; border:1px solid var(--brand-gold); padding:8px 18px; border-radius:4px; display:inline-block; margin-top:10px; transition:0.3s;" onmouseover="this.style.background='var(--brand-gold)';this.style.color='#000';" onmouseout="this.style.background='transparent';this.style.color='var(--brand-gold)';">Shop Products →</a>
                 </div>
             `;
-            badge.style.display = 'none';
-            subtotalText.innerText = '₹0';
-            shippingText.innerText = '₹0';
-            totalText.innerText = '₹0';
+            if (badge) badge.style.display = 'none';
+            if (subtotalEl) subtotalEl.innerText = '₹0';
+            if (shippingEl) shippingEl.innerText = '₹0';
+            if (totalEl) totalEl.innerText = '₹0';
             return;
         }
 
-        // Render items
         list.innerHTML = state.cart.map(item => `
             <div class="cart-item">
-                <img class="cart-item-img" src="${item.img}" alt="${item.name}">
+                <img class="cart-item-img" src="${item.img}" alt="${item.name}" onerror="this.src='logo.png'">
                 <div class="cart-item-details">
                     <div class="cart-item-title">${item.name}</div>
-                    <div class="cart-item-price">₹${item.price}</div>
+                    <div class="cart-item-price">₹${item.price.toLocaleString('en-IN')} each</div>
                     <div class="cart-item-actions">
-                        <button class="qty-btn dec-btn" data-name="${item.name}">-</button>
+                        <button class="qty-btn dec-btn" data-name="${item.name}">−</button>
                         <span class="cart-item-qty">${item.quantity}</span>
                         <button class="qty-btn inc-btn" data-name="${item.name}">+</button>
+                        <span style="color:var(--brand-gold); font-weight:bold; margin-left:5px;">₹${(item.price * item.quantity).toLocaleString('en-IN')}</span>
                     </div>
                 </div>
-                <button class="cart-item-remove remove-btn" data-name="${item.name}">Remove</button>
+                <button class="cart-item-remove remove-btn" data-name="${item.name}" title="Remove item">✕</button>
             </div>
         `).join('');
 
-        // Wire actions
         list.querySelectorAll('.dec-btn').forEach(b => b.addEventListener('click', () => updateQty(b.dataset.name, -1)));
         list.querySelectorAll('.inc-btn').forEach(b => b.addEventListener('click', () => updateQty(b.dataset.name, 1)));
         list.querySelectorAll('.remove-btn').forEach(b => b.addEventListener('click', () => removeItem(b.dataset.name)));
 
-        // Totals
-        const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const shipping = subtotal > 999 ? 0 : 99; // Free shipping over 999
+        const subtotal = state.cart.reduce((s, i) => s + i.price * i.quantity, 0);
+        const shipping = subtotal > 999 ? 0 : 99;
         const total = subtotal + shipping;
-        const count = state.cart.reduce((sum, item) => sum + item.quantity, 0);
+        const count = state.cart.reduce((s, i) => s + i.quantity, 0);
 
-        badge.innerText = count;
-        badge.style.display = 'flex';
-
-        subtotalText.innerText = `₹${subtotal}`;
-        shippingText.innerText = shipping === 0 ? 'FREE' : `₹${shipping}`;
-        totalText.innerText = `₹${total}`;
+        if (badge) { badge.innerText = count; badge.style.display = 'flex'; }
+        if (subtotalEl) subtotalEl.innerText = `₹${subtotal.toLocaleString('en-IN')}`;
+        if (shippingEl) shippingEl.innerText = shipping === 0 ? 'FREE ✓' : `₹${shipping}`;
+        if (totalEl) totalEl.innerText = `₹${total.toLocaleString('en-IN')}`;
     }
 
-    // --- CHECKOUT FLOWS ---
+    // --- CHECKOUT FLOW ---
+    let pendingShipping = null;
+
     function handleCheckoutTrigger() {
         if (state.cart.length === 0) {
-            showToast('Add some items first!', 'error');
+            showToast('Add some items to your cart first!', 'error');
             return;
         }
-
         if (!state.token) {
-            showToast('Please login to place your order.', 'info');
+            showToast('Please sign in to place your order.', 'info');
             showModal('auth-modal');
+            document.getElementById('checkout-modal').dataset.pendingCheckout = 'true';
             return;
         }
+        openCheckoutStep1();
+    }
 
-        // Setup checkout modal summaries
-        const miniContainer = document.getElementById('checkout-items-mini');
-        miniContainer.innerHTML = state.cart.map(item => `
-            <div class="mini-item">
-                <span class="mini-item-name">${item.name} x ${item.quantity}</span>
-                <span class="mini-item-qty-price">₹${item.price * item.quantity}</span>
-            </div>
-        `).join('');
-
-        const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-        const shipping = subtotal > 999 ? 0 : 99;
-        const grandTotal = subtotal + shipping;
-
-        document.getElementById('checkout-grand-total').innerText = `₹${grandTotal}`;
-
-        // Auto-fill checkout fields if user exists
+    function openCheckoutStep1() {
+        // Pre-fill user name
         if (state.user) {
-            document.getElementById('ship-name').value = state.user.name || '';
-        }
+            const nameField = document.getElementById('ship-name');
+            if (nameField && !nameField.value) nameField.value = state.user.name || '';
 
+            // Show "Ordering as" chip
+            const chip = document.getElementById('shipping-user-info');
+            const chipEmail = document.getElementById('shipping-as-email');
+            if (chip && chipEmail) {
+                chipEmail.textContent = state.user.email;
+                chip.style.display = 'block';
+            }
+
+            // Pre-fill last address if available
+            if (state.user.lastAddress) {
+                const addr = state.user.lastAddress;
+                const fill = (id, val) => { const el = document.getElementById(id); if (el && !el.value) el.value = val || ''; };
+                fill('ship-name', addr.name);
+                fill('ship-phone', addr.phone);
+                fill('ship-address', addr.address);
+                fill('ship-city', addr.city);
+                fill('ship-state', addr.state);
+                fill('ship-zip', addr.zip);
+            }
+        }
+        goToCheckoutStep(1);
         showModal('checkout-modal');
     }
 
-    function handleOrderSubmit(e) {
-        e.preventDefault();
-        
-        const shippingDetails = {
-            name: document.getElementById('ship-name').value,
-            phone: document.getElementById('ship-phone').value,
-            address: document.getElementById('ship-address').value,
-            city: document.getElementById('ship-city').value,
-            state: document.getElementById('ship-state').value,
-            zip: document.getElementById('ship-zip').value
-        };
+    function goToCheckoutStep(step) {
+        [1, 2, 3].forEach(n => {
+            document.getElementById(`checkout-step-${n}`).classList.toggle('active', n === step);
+            const ind = document.getElementById(`step-ind-${n}`);
+            if (ind) {
+                ind.classList.toggle('active', n <= step);
+                ind.classList.toggle('completed', n < step);
+            }
+        });
+        const titles = { 1: 'Delivery Details', 2: 'Review Your Order', 3: 'Order Confirmed' };
+        document.getElementById('checkout-modal-title').innerText = titles[step] || '';
+    }
 
-        const payload = {
-            items: state.cart,
-            shippingDetails
+    function goToCheckoutStep2() {
+        const ship = {
+            name: document.getElementById('ship-name').value.trim(),
+            phone: document.getElementById('ship-phone').value.trim(),
+            address: document.getElementById('ship-address').value.trim(),
+            city: document.getElementById('ship-city').value.trim(),
+            state: document.getElementById('ship-state').value.trim(),
+            zip: document.getElementById('ship-zip').value.trim()
         };
+        pendingShipping = ship;
 
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        const origText = submitBtn.innerText;
-        submitBtn.innerText = 'Scheduling Order...';
-        submitBtn.disabled = true;
+        const subtotal = state.cart.reduce((s, i) => s + i.price * i.quantity, 0);
+        const shipping = subtotal > 999 ? 0 : 99;
+        const total = subtotal + shipping;
+
+        const deliveryDate = new Date();
+        deliveryDate.setDate(deliveryDate.getDate() + 14);
+        const deliveryStr = deliveryDate.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Render items review
+        document.getElementById('review-items-list').innerHTML = state.cart.map(item => `
+            <div class="review-item-row">
+                <img src="${item.img}" alt="${item.name}" onerror="this.src='logo.png'">
+                <div class="review-item-info">
+                    <div class="review-item-name">${item.name}</div>
+                    <div class="review-item-meta">Qty: ${item.quantity} &nbsp;·&nbsp; ₹${item.price.toLocaleString('en-IN')} each</div>
+                </div>
+                <div class="review-item-total">₹${(item.price * item.quantity).toLocaleString('en-IN')}</div>
+            </div>
+        `).join('');
+
+        // Render address
+        document.getElementById('review-address-text').innerHTML = `
+            <strong>${ship.name}</strong> &nbsp; ${ship.phone}<br>
+            ${ship.address}<br>
+            ${ship.city}, ${ship.state} — ${ship.zip}
+        `;
+
+        // Render totals
+        document.getElementById('review-totals').innerHTML = `
+            <div class="review-total-row"><span>Subtotal</span><span>₹${subtotal.toLocaleString('en-IN')}</span></div>
+            <div class="review-total-row"><span>Shipping</span><span>${shipping === 0 ? '<span style="color:#81C784">FREE</span>' : '₹' + shipping}</span></div>
+            <div class="review-total-row grand"><span>Grand Total</span><span>₹${total.toLocaleString('en-IN')}</span></div>
+        `;
+
+        document.getElementById('review-delivery-date').innerText = `Estimated arrival: ${deliveryStr}`;
+
+        goToCheckoutStep(2);
+    }
+
+    function handleOrderSubmit() {
+        const btn = document.getElementById('place-order-btn');
+        btn.innerText = 'Placing Order...';
+        btn.disabled = true;
+
+        const payload = { items: state.cart, shippingDetails: pendingShipping };
 
         fetch('/api/orders', {
             method: 'POST',
@@ -697,36 +715,45 @@
         })
         .then(res => res.json())
         .then(data => {
+            btn.innerText = 'Place Order ✓';
+            btn.disabled = false;
+
             if (data.error) {
                 showToast(data.error, 'error');
-                submitBtn.innerText = origText;
-                submitBtn.disabled = false;
                 return;
             }
 
-            // Success Order placed
-            showToast('Order scheduled successfully!', 'success');
-            
-            // Success Modal Dialog
-            closeAllOverlays();
-            
-            // Render receipt confirmation modal in place of checkout
+            // Clear cart
             state.cart = [];
             localStorage.setItem('kaava_cart', JSON.stringify([]));
             updateCartUI();
 
-            // Notify user of 2-week delivery
-            alert(`🎉 Order ${data.orderId} Placed!\n\nYour order has been recorded and will arrive in exactly 2 weeks.\n\nAn email alert has been simulated/sent to the administrator.`);
+            // Show success screen
+            const delivDate = new Date(data.order.estimatedDeliveryDate);
+            const delivStr = delivDate.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            document.getElementById('success-order-id').innerHTML = `
+                Order ID: <span style="color:var(--brand-gold); font-family: monospace;">${data.orderId}</span>
+            `;
+            document.getElementById('success-email-notice').innerHTML = `
+                📧 Confirmation email sent to <strong>${state.user ? state.user.email : 'your inbox'}</strong>
+            `;
+            document.getElementById('success-details-box').innerHTML = data.order.items.map(i =>
+                `<div class="success-item-row"><span>${i.name} × ${i.quantity}</span><span>₹${(i.price * i.quantity).toLocaleString('en-IN')}</span></div>`
+            ).join('') + `<div class="success-item-row grand"><span>Total Paid</span><span>₹${data.order.total.toLocaleString('en-IN')}</span></div>`;
+            document.getElementById('success-delivery-date').innerText = delivStr;
+
+            goToCheckoutStep(3);
         })
         .catch(err => {
             console.error(err);
-            showToast('Order failed. Try again.', 'error');
-            submitBtn.innerText = origText;
-            submitBtn.disabled = false;
+            btn.innerText = 'Place Order ✓';
+            btn.disabled = false;
+            showToast('Something went wrong. Please try again.', 'error');
         });
     }
 
-    // --- AUTHENTICATION API FLOWS ---
+    // --- AUTH FLOWS ---
     function apiAuth(url, body, successMsg = 'Welcome to Kaava!') {
         fetch(url, {
             method: 'POST',
@@ -735,59 +762,44 @@
         })
         .then(res => res.json())
         .then(data => {
-            if (data.error) {
-                showToast(data.error, 'error');
-                return;
-            }
-
+            if (data.error) { showToast(data.error, 'error'); return; }
             state.token = data.token;
             state.user = data.user;
             localStorage.setItem('kaava_token', data.token);
-            
             showToast(successMsg, 'success');
             syncAuthState();
             closeAllOverlays();
 
-            // If we came from click-checkout, resume
-            if (document.getElementById('checkout-modal').dataset.pendingTrigger === 'true') {
-                delete document.getElementById('checkout-modal').dataset.pendingTrigger;
-                handleCheckoutTrigger();
+            // If user was trying to checkout, resume
+            if (document.getElementById('checkout-modal').dataset.pendingCheckout === 'true') {
+                delete document.getElementById('checkout-modal').dataset.pendingCheckout;
+                setTimeout(openCheckoutStep1, 400);
+                setTimeout(() => showModal('checkout-modal'), 450);
             }
         })
-        .catch(err => {
-            console.error(err);
-            showToast('Authentication failed.', 'error');
-        });
+        .catch(() => showToast('Authentication failed. Please try again.', 'error'));
     }
 
     function handleLogout() {
         fetch('/api/auth/logout', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${state.token}` }
-        })
-        .finally(() => {
+        }).finally(() => {
             state.token = null;
             state.user = null;
             localStorage.removeItem('kaava_token');
             syncAuthState();
             closeAllOverlays();
-            showToast('Logged out.', 'info');
+            showToast('Signed out successfully.', 'info');
         });
     }
 
     function syncAuthState() {
-        if (!state.token) {
-            state.user = null;
-            return;
-        }
+        if (!state.token) { state.user = null; return; }
 
-        // Fetch profile
-        fetch('/api/auth/me', {
-            headers: { 'Authorization': `Bearer ${state.token}` }
-        })
+        fetch('/api/auth/me', { headers: { 'Authorization': `Bearer ${state.token}` } })
         .then(res => {
             if (res.status === 401) {
-                // Token expired/invalid
                 state.token = null;
                 localStorage.removeItem('kaava_token');
                 return null;
@@ -797,34 +809,32 @@
         .then(data => {
             if (data && data.success) {
                 state.user = data.user;
-                
-                // Update profile dashboard values
-                document.getElementById('profile-user-name').innerText = `Athlete: ${state.user.name}`;
-                document.getElementById('profile-user-email').innerText = state.user.email;
+                const nameEl = document.getElementById('profile-user-name');
+                const emailEl = document.getElementById('profile-user-email');
+                const avatarEl = document.getElementById('profile-avatar-circle');
+                if (nameEl) nameEl.innerText = state.user.name;
+                if (emailEl) emailEl.innerText = state.user.email;
+                if (avatarEl) avatarEl.innerText = (state.user.name || 'U').charAt(0).toUpperCase();
             }
         })
-        .catch(err => console.error('Auth state validation failed:', err));
+        .catch(err => console.error('Auth sync error:', err));
     }
 
     function handleProfileClick() {
         if (!state.token) {
-            // Mark checkout modal as triggered after auth if they were trying to checkout
             showModal('auth-modal');
         } else {
-            // Render Order History and show dashboard
             fetchOrderHistory();
             showModal('profile-modal');
         }
     }
 
-    // --- FETCH ORDER HISTORY ---
+    // --- ORDER HISTORY ---
     function fetchOrderHistory() {
         const list = document.getElementById('profile-orders-list');
-        list.innerHTML = '<div style="text-align:center; padding:30px;">Loading order history...</div>';
+        list.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted);">Loading your orders...</div>';
 
-        fetch('/api/orders', {
-            headers: { 'Authorization': `Bearer ${state.token}` }
-        })
+        fetch('/api/orders', { headers: { 'Authorization': `Bearer ${state.token}` } })
         .then(res => res.json())
         .then(data => {
             if (data.error) {
@@ -834,201 +844,63 @@
 
             if (!data.orders || data.orders.length === 0) {
                 list.innerHTML = `
-                    <div style="text-align:center; color:var(--text-muted); padding:40px 0;">
-                        <p>No orders placed yet.</p>
-                        <button class="cta-btn" onclick="document.getElementById('profile-modal').classList.remove('active'); document.getElementById('kaava-overlay').classList.remove('active');" style="border:none; padding:10px 20px; font-size:0.9rem; margin-top:15px; width:auto;">Shop Now</button>
+                    <div style="text-align:center; color:var(--text-muted); padding:50px 0;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3; display:block; margin:0 auto 15px;"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                        <p style="font-size:1rem; margin-bottom:15px;">No orders yet</p>
+                        <a href="products.html" style="color:var(--brand-gold); text-decoration:none; font-size:0.9rem; border:1px solid var(--brand-gold); padding:8px 20px; border-radius:4px;">Start Shopping →</a>
                     </div>
                 `;
                 return;
             }
 
-            // Render order cards
             list.innerHTML = data.orders.map(order => {
-                const orderDate = new Date(order.createdAt).toLocaleDateString();
-                const estDelivery = new Date(order.estimatedDeliveryDate).toLocaleDateString();
-                
-                // Track timeline state values
-                // 50% for Shipped status, standard timeline
+                const oDate = new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                const dDate = new Date(order.estimatedDeliveryDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+                const now = new Date();
+                const delivery = new Date(order.estimatedDeliveryDate);
+                const isDelivered = now > delivery;
+                const progressPct = isDelivered ? 100 : Math.min(100, Math.round(((now - new Date(order.createdAt)) / (delivery - new Date(order.createdAt))) * 100));
+
                 return `
-                    <div class="order-card">
-                        <div class="order-card-header">
-                            <span class="order-id">${order.id}</span>
-                            <span class="order-date">${orderDate}</span>
+                <div class="order-card">
+                    <div class="order-card-header">
+                        <div>
+                            <div class="order-id">${order.id}</div>
+                            <div class="order-date">Placed on ${oDate}</div>
                         </div>
-                        <div class="order-items-summary">
-                            ${order.items.map(i => `<div style="margin-bottom:5px;">• ${i.name} (${i.quantity}x) - ₹${i.price * i.quantity}</div>`).join('')}
+                        <span class="order-status-badge">${isDelivered ? '✓ Delivered' : '🚛 In Transit'}</span>
+                    </div>
+                    <div class="order-items-summary">
+                        ${order.items.map(i => `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.04);"><span>• ${i.name} <span style="color:var(--text-muted);">× ${i.quantity}</span></span><span style="color:var(--text-muted);">₹${(i.price * i.quantity).toLocaleString('en-IN')}</span></div>`).join('')}
+                    </div>
+                    <div class="delivery-tracker">
+                        <div class="tracker-timeline">
+                            <div class="tracker-timeline-progress" style="width:${progressPct}%;"></div>
+                            <div class="tracker-node ${progressPct >= 0 ? 'active' : ''}">✓</div>
+                            <div class="tracker-node ${progressPct >= 50 ? 'active' : ''}">📦</div>
+                            <div class="tracker-node ${isDelivered ? 'active' : ''}">🏠</div>
                         </div>
-                        
-                        <!-- Timeline tracking progress -->
-                        <div class="delivery-tracker">
-                            <div class="tracker-timeline">
-                                <div class="tracker-timeline-progress"></div>
-                                <div class="tracker-node active">1</div>
-                                <div class="tracker-node active">2</div>
-                                <div class="tracker-node">3</div>
-                            </div>
-                            <div class="tracker-labels">
-                                <div class="tracker-label active">Ordered</div>
-                                <div class="tracker-label active">Shipped</div>
-                                <div class="tracker-label">Arrived</div>
-                            </div>
-                        </div>
-
-                        <div class="delivery-estimate-banner">
-                            🚛 Estimated Delivery: ${estDelivery} (in 2 weeks)
-                        </div>
-
-                        <div class="order-card-footer">
-                            <div class="order-total">Paid: ₹${order.total}</div>
-                            <span class="order-status-badge">${order.status}</span>
+                        <div class="tracker-labels">
+                            <div class="tracker-label active">Ordered</div>
+                            <div class="tracker-label ${progressPct >= 50 ? 'active' : ''}">Shipped</div>
+                            <div class="tracker-label ${isDelivered ? 'active' : ''}">Delivered</div>
                         </div>
                     </div>
+                    <div class="delivery-estimate-banner">
+                        ${isDelivered ? '✅ Delivered on ' + dDate : '🗓️ Expected by ' + dDate}
+                    </div>
+                    <div class="order-card-footer">
+                        <div class="order-total">₹${order.total.toLocaleString('en-IN')} <span style="font-weight:normal; font-size:0.85rem; color:var(--text-muted);">(COD)</span></div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">${order.shippingDetails.city}, ${order.shippingDetails.state}</div>
+                    </div>
+                </div>
                 `;
             }).join('');
         })
         .catch(err => {
             console.error(err);
-            list.innerHTML = '<div style="color:#ff4c4c; text-align:center; padding:30px;">Failed to load order history.</div>';
+            list.innerHTML = '<div style="color:#ff4c4c; text-align:center; padding:30px;">Failed to load orders. Please try again.</div>';
         });
-    }
-
-    // --- FETCH SIMULATED DEVELOEPR EMAILS ---
-    function fetchSimulatedEmails() {
-        const list = document.getElementById('profile-emails-list');
-        list.innerHTML = '<div style="text-align:center; padding:30px;">Fetching simulated logs...</div>';
-
-        fetch('/api/admin/emails', {
-            headers: { 'Authorization': `Bearer ${state.token}` }
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.error) {
-                list.innerHTML = `<div style="color:#ff4c4c; text-align:center; padding:30px;">${data.error}</div>`;
-                return;
-            }
-
-            if (!data.emails || data.emails.length === 0) {
-                list.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:30px;">No simulated emails generated yet. Complete a checkout to trigger order emails.</div>';
-                return;
-            }
-
-            list.innerHTML = data.emails.map(email => {
-                const sentTime = new Date(email.sentAt).toLocaleTimeString();
-                const sentDate = new Date(email.sentAt).toLocaleDateString();
-                return `
-                    <div class="email-log-card">
-                        <div class="email-log-header">
-                            <span>To: ${email.to}</span>
-                            <span>${sentDate} ${sentTime}</span>
-                        </div>
-                        <div class="email-log-subject">${email.subject}</div>
-                        <button class="email-view-btn" data-id="${email.id}">Toggle Content HTML</button>
-                        <div class="email-sandbox-frame" id="sandbox-${email.id}" style="display:none; margin-top:10px;">
-                            ${email.html}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            // Add toggle event listeners
-            list.querySelectorAll('.email-view-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const box = document.getElementById(`sandbox-${btn.dataset.id}`);
-                    if (box) {
-                        box.style.display = box.style.display === 'none' ? 'block' : 'none';
-                    }
-                });
-            });
-        })
-        .catch(err => {
-            console.error(err);
-            list.innerHTML = '<div style="color:#ff4c4c; text-align:center; padding:30px;">Failed to load simulated logs.</div>';
-        });
-    }
-
-    let googleClientId = '';
-
-    function loadGoogleScript() {
-        fetch('/api/config')
-            .then(res => res.json())
-            .then(config => {
-                googleClientId = config.googleClientId;
-                
-                // Inject the Google client script
-                const script = document.createElement('script');
-                script.src = 'https://accounts.google.com/gsi/client';
-                script.async = true;
-                script.defer = true;
-                script.onload = initializeGoogleSignIn;
-                document.head.appendChild(script);
-            })
-            .catch(err => {
-                console.error('Failed to load Google Client Config:', err);
-                initializeGoogleSignIn();
-            });
-    }
-
-    function initializeGoogleSignIn() {
-        const container = document.getElementById('google-signin-container');
-        if (!container) return;
-
-        if (googleClientId && window.google && window.google.accounts) {
-            try {
-                window.google.accounts.id.initialize({
-                    client_id: googleClientId,
-                    callback: handleCredentialResponse
-                });
-
-                window.google.accounts.id.renderButton(
-                    container,
-                    { 
-                        theme: 'outline', 
-                        size: 'large', 
-                        width: 320,
-                        text: 'signin_with'
-                    }
-                );
-
-                window.google.accounts.id.prompt(); // One Tap support
-                console.log('✅ Real Google Identity Sign-in initialized.');
-            } catch (err) {
-                console.error('Failed to initialize official Google Sign-in, falling back to simulated:', err);
-                setupSimulatedGoogleButton(container);
-            }
-        } else {
-            setupSimulatedGoogleButton(container);
-        }
-    }
-
-    function setupSimulatedGoogleButton(container) {
-        container.innerHTML = '';
-
-        const fallbackBtn = document.createElement('button');
-        fallbackBtn.className = 'google-login-btn';
-        fallbackBtn.innerHTML = `
-            <svg class="google-icon" viewBox="0 0 24 24">
-                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-            </svg>
-            Continue with Google
-        `;
-
-        fallbackBtn.addEventListener('click', () => {
-            const emailInput = document.getElementById('google-custom-email');
-            const nameInput = document.getElementById('google-custom-name');
-            if (emailInput) emailInput.value = '';
-            if (nameInput) nameInput.value = '';
-            showModal('google-chooser-modal');
-        });
-
-        container.appendChild(fallbackBtn);
-    }
-
-    function handleCredentialResponse(response) {
-        apiAuth('/api/auth/google-login', { 
-            credential: response.credential 
-        }, 'Google account verified securely!');
     }
 })();
