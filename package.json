@@ -1,0 +1,13 @@
+{
+  "name": "kaava-nutrition-website",
+  "version": "1.0.0",
+  "description": "Kaava Nutrition E-Commerce Platform",
+  "main": "simple_server.js",
+  "scripts": {
+    "start": "node simple_server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.13"
+  }
+}
