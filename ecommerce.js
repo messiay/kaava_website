@@ -279,6 +279,71 @@
             document.body.appendChild(profileModal);
         }
 
+        // Google Chooser Modal
+        if (!document.getElementById('google-chooser-modal')) {
+            const chooser = document.createElement('div');
+            chooser.id = 'google-chooser-modal';
+            chooser.className = 'kaava-modal';
+            chooser.style.maxWidth = '400px';
+            chooser.innerHTML = `
+                <div class="modal-body" style="position:relative; padding: 45px 30px; text-align: center; background: #ffffff; color: #202124; font-family: 'Roboto', arial, sans-serif; border-radius:12px;">
+                    <div id="google-chooser-close" style="position:absolute; top:15px; right:20px; font-size:1.2rem; cursor:pointer; color:#5f6368; font-weight:bold;">✕</div>
+                    <div style="display:flex; justify-content:center; margin-bottom:15px;">
+                        <svg width="74" height="24" viewBox="0 0 74 24" fill="none">
+                            <path d="M12.2 5c-1.7 0-3.2.5-4.4 1.5L4.7 3.4C6.7 1.6 9.3.6 12.2.6c5.2 0 9.4 3.7 10.3 8.6h-4.9c-.8-2.3-3-4.2-5.4-4.2z" fill="#EA4335"/>
+                            <path d="M22.5 9.2c.1.5.1 1.1.1 1.6 0 5.8-3.9 9.9-9.7 9.9-5.7 0-10.3-4.6-10.3-10.3S7.2.1 12.9.1c3.1 0 5.7 1.1 7.7 3L17 6.7c-1.1-1-2.5-1.7-4.1-1.7-3.6 0-6.5 3-6.5 6.7s2.9 6.7 6.5 6.7c4.1 0 5.6-2.9 5.8-4.4h-5.8V9.2h9.2z" fill="#4285F4"/>
+                        </svg>
+                    </div>
+                    <h2 style="font-size: 1.5rem; font-weight: 400; margin-bottom: 8px; color: #202124; font-family: inherit; text-transform:none; border:none; text-align:center;">Choose an account</h2>
+                    <p style="font-size: 0.9rem; color: #5f6368; margin-bottom: 25px; text-align:center;">to continue to <strong style="color:#000;">Kaava Nutrition</strong></p>
+                    
+                    <div id="google-accounts-list" style="text-align: left; display:flex; flex-direction:column; gap:5px; margin-bottom:25px;">
+                        <div class="google-account-row" data-email="arjun.subbaraman13@gmail.com" data-name="Arjun Subbaraman" style="display:flex; align-items:center; padding:12px; border-bottom: 1px solid #f1f3f4; cursor:pointer; transition: background 0.2s; border-radius: 4px;">
+                            <div style="width:36px; height:36px; border-radius:50%; background:#1565C0; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.1rem; margin-right:12px;">A</div>
+                            <div>
+                                <div style="font-weight:600; font-size:0.9rem; color:#3c4043;">Arjun Subbaraman</div>
+                                <div style="font-size:0.8rem; color:#5f6368;">arjun.subbaraman13@gmail.com</div>
+                            </div>
+                        </div>
+                        <div class="google-account-row" data-email="support@kaavanutrition.in" data-name="Kaava Support" style="display:flex; align-items:center; padding:12px; border-bottom: 1px solid #f1f3f4; cursor:pointer; transition: background 0.2s; border-radius: 4px;">
+                            <div style="width:36px; height:36px; border-radius:50%; background:#2E7D32; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.1rem; margin-right:12px;">K</div>
+                            <div>
+                                <div style="font-weight:600; font-size:0.9rem; color:#3c4043;">Kaava Support</div>
+                                <div style="font-size:0.8rem; color:#5f6368;">support@kaavanutrition.in</div>
+                            </div>
+                        </div>
+                        <div class="google-account-row" id="google-use-another-row" style="display:flex; align-items:center; padding:12px; cursor:pointer; transition: background 0.2s; border-radius: 4px;">
+                            <div style="width:36px; height:36px; border-radius:50%; background:#f1f3f4; color:#5f6368; display:flex; align-items:center; justify-content:center; margin-right:12px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                                </svg>
+                            </div>
+                            <div style="font-weight:600; font-size:0.9rem; color:#1a73e8;">Use another account</div>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Custom Email form -->
+                    <div id="google-custom-email-form" style="display:none; text-align: left; margin-bottom: 20px;">
+                        <div style="margin-bottom:15px;">
+                            <input type="email" id="google-custom-email" placeholder="Email Address" style="width:100%; padding:14px; border:1px solid #dadce0; border-radius:4px; font-size:1rem; color:#000; background:white; font-family:inherit;" required>
+                        </div>
+                        <div style="margin-bottom:20px;">
+                            <input type="text" id="google-custom-name" placeholder="Full Name" style="width:100%; padding:14px; border:1px solid #dadce0; border-radius:4px; font-size:1rem; color:#000; background:white; font-family:inherit;" required>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <button id="google-custom-back" type="button" style="background:none; border:none; color:#1a73e8; cursor:pointer; font-weight:600; font-size:0.9rem;">Back</button>
+                            <button id="google-custom-next" type="button" style="background:#1a73e8; color:white; border:none; padding:10px 24px; border-radius:4px; cursor:pointer; font-weight:600; font-size:0.9rem;">Next</button>
+                        </div>
+                    </div>
+
+                    <div style="font-size:0.75rem; color:#757575; line-height:1.4; text-align:left; margin-top:20px;">
+                        To continue, Google will share your name, email address, profile picture, and personal info with Kaava Nutrition.
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(chooser);
+        }
+
         // 7. Inject Cart/Account buttons into Header Nav
         injectNavButtons();
     }
@@ -414,6 +479,75 @@
             secOrders.style.display = 'none';
             fetchSimulatedEmails();
         });
+
+        // Google Account Chooser Event Handlers
+        const googleChooserClose = document.getElementById('google-chooser-close');
+        if (googleChooserClose) {
+            googleChooserClose.addEventListener('click', closeAllOverlays);
+        }
+
+        // Pre-defined Google account clicked
+        document.querySelectorAll('.google-account-row').forEach(row => {
+            if (row.id === 'google-use-another-row') return;
+            row.addEventListener('click', () => {
+                const name = row.dataset.name;
+                const email = row.dataset.email;
+                closeAllOverlays();
+                showToast('Authenticating with Google Account...', 'info');
+                setTimeout(() => {
+                    apiAuth('/api/auth/google-login', { name, email }, `Logged in as ${email}`);
+                }, 1000);
+            });
+        });
+
+        // Use another Google account tab
+        const useAnotherRow = document.getElementById('google-use-another-row');
+        const customEmailForm = document.getElementById('google-custom-email-form');
+        const accountsList = document.getElementById('google-accounts-list');
+
+        if (useAnotherRow && customEmailForm && accountsList) {
+            useAnotherRow.addEventListener('click', () => {
+                accountsList.style.display = 'none';
+                customEmailForm.style.display = 'block';
+            });
+        }
+
+        // Custom email form back button
+        const customBack = document.getElementById('google-custom-back');
+        if (customBack && customEmailForm && accountsList) {
+            customBack.addEventListener('click', () => {
+                customEmailForm.style.display = 'none';
+                accountsList.style.display = 'flex';
+            });
+        }
+
+        // Custom email form submit button
+        const customNext = document.getElementById('google-custom-next');
+        if (customNext && customEmailForm) {
+            customNext.addEventListener('click', () => {
+                const emailInput = document.getElementById('google-custom-email');
+                const nameInput = document.getElementById('google-custom-name');
+                const email = emailInput.value.trim();
+                const name = nameInput.value.trim();
+
+                if (!email || !email.includes('@')) {
+                    showToast('Please enter a valid email address.', 'error');
+                    emailInput.focus();
+                    return;
+                }
+                if (!name) {
+                    showToast('Please enter your name.', 'error');
+                    nameInput.focus();
+                    return;
+                }
+
+                closeAllOverlays();
+                showToast('Authenticating with Google Account...', 'info');
+                setTimeout(() => {
+                    apiAuth('/api/auth/google-login', { name, email }, `Logged in as ${email}`);
+                }, 1000);
+            });
+        }
     }
 
     // --- DRAWER & MODAL TOGGLERS ---
@@ -446,6 +580,9 @@
         document.getElementById('auth-modal').classList.remove('active');
         document.getElementById('checkout-modal').classList.remove('active');
         document.getElementById('profile-modal').classList.remove('active');
+        if (document.getElementById('google-chooser-modal')) {
+            document.getElementById('google-chooser-modal').classList.remove('active');
+        }
         document.getElementById('kaava-overlay').classList.remove('active');
     }
 
@@ -937,23 +1074,20 @@
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
             </svg>
-            Continue with Google (Simulation)
+            Continue with Google
         `;
 
         fallbackBtn.addEventListener('click', () => {
-            showToast('Simulating Google Login...', 'info');
-            setTimeout(() => {
-                const email = prompt("Enter a simulated Google Email to authenticate:", "athlete@kaavanutrition.in");
-                if (!email) return;
-
-                const name = email.split('@')[0].replace(/[^a-zA-Z]/g, ' ');
-                const formattedName = name.charAt(0).toUpperCase() + name.slice(1);
-
-                apiAuth('/api/auth/google-login', { 
-                    name: formattedName || 'Elite Athlete', 
-                    email: email 
-                }, `Logged in as ${email}!`);
-            }, 500);
+            // Reset chooser modal state before displaying
+            const customEmailForm = document.getElementById('google-custom-email-form');
+            const accountsList = document.getElementById('google-accounts-list');
+            if (customEmailForm && accountsList) {
+                customEmailForm.style.display = 'none';
+                accountsList.style.display = 'flex';
+                document.getElementById('google-custom-email').value = '';
+                document.getElementById('google-custom-name').value = '';
+            }
+            showModal('google-chooser-modal');
         });
 
         container.appendChild(fallbackBtn);
