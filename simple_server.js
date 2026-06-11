@@ -112,72 +112,80 @@ app.get('/api/config', (req, res) => {
 
 // --- API ENDPOINTS ---
 
-// SignUp API
-app.post('/api/auth/signup', (req, res) => {
-    const { name, email, password } = req.body;
-    if (!name || !email || !password) {
-        return res.status(400).json({ error: 'Name, email, and password are required' });
+// Note: email/password login kept as internal fallback only — customers use Google Sign-In
+
+
+// Google OAuth Login — verifies the ID token from Google Identity Services
+app.post('/api/auth/google-login', async (req, res) => {
+    const { credential } = req.body;
+    if (!credential) {
+        return res.status(400).json({ error: 'Google credential token is required' });
     }
 
+    let userEmail, userName, googleId;
+
+    try {
+        // Verify the token with Google's tokeninfo endpoint
+        const ticketRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
+        const payload = await ticketRes.json();
+
+        if (!ticketRes.ok || payload.error) {
+            return res.status(400).json({ error: 'Invalid Google token. Please try signing in again.' });
+        }
+
+        // Validate audience if Client ID is set
+        const clientId = process.env.GOOGLE_CLIENT_ID;
+        if (clientId && payload.aud !== clientId) {
+            return res.status(400).json({ error: 'Token audience mismatch. Please try again.' });
+        }
+
+        userEmail = payload.email.toLowerCase().trim();
+        userName = payload.name;
+        googleId = payload.sub;
+    } catch (err) {
+        console.error('Google token verification failed:', err);
+        return res.status(500).json({ error: 'Failed to verify Google account. Please try again.' });
+    }
+
+    // Find or create user
     const users = readJson(USERS_FILE);
-    const lowercaseEmail = email.toLowerCase().trim();
-    
-    if (users.find(u => u.email === lowercaseEmail)) {
-        return res.status(400).json({ error: 'A user with this email already exists' });
+    let user = users.find(u => u.email === userEmail);
+
+    if (!user) {
+        // First-time Google sign-in — auto-create account
+        user = {
+            name: userName,
+            email: userEmail,
+            googleId,
+            isGoogleUser: true,
+            passwordHash: hashPassword(crypto.randomBytes(16).toString('hex')), // random, never used
+            createdAt: new Date().toISOString()
+        };
+        users.push(user);
+        writeJson(USERS_FILE, users);
+        console.log(`✅ New Google customer registered: ${userEmail}`);
+    } else {
+        // Update name/googleId in case it changed
+        user.name = userName;
+        user.googleId = googleId;
+        const idx = users.findIndex(u => u.email === userEmail);
+        users[idx] = user;
+        writeJson(USERS_FILE, users);
     }
-
-    const newUser = {
-        name: name.trim(),
-        email: lowercaseEmail,
-        passwordHash: hashPassword(password),
-        createdAt: new Date().toISOString()
-    };
-
-    users.push(newUser);
-    writeJson(USERS_FILE, users);
 
     // Create session token
     const token = crypto.randomBytes(32).toString('hex');
     const sessions = getSessions();
-    sessions[token] = lowercaseEmail;
+    sessions[token] = userEmail;
     saveSessions(sessions);
 
-    res.status(201).json({
-        success: true,
-        token,
-        user: { name: newUser.name, email: newUser.email }
-    });
-});
-
-// Login API
-app.post('/api/auth/login', (req, res) => {
-    const { email, password } = req.body;
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
-    }
-
-    const users = readJson(USERS_FILE);
-    const lowercaseEmail = email.toLowerCase().trim();
-    const user = users.find(u => u.email === lowercaseEmail);
-
-    if (!user || user.passwordHash !== hashPassword(password)) {
-        return res.status(400).json({ error: 'Invalid email or password' });
-    }
-
-    // Create session token
-    const token = crypto.randomBytes(32).toString('hex');
-    const sessions = getSessions();
-    sessions[token] = lowercaseEmail;
-    saveSessions(sessions);
-
+    console.log(`🔐 Google sign-in: ${userEmail}`);
     res.json({
         success: true,
         token,
-        user: { name: user.name, email: user.email }
+        user: { name: user.name, email: user.email, lastAddress: user.lastAddress || null }
     });
 });
-
-// Note: Google OAuth login removed — customers use email/password only
 
 // Logout API
 app.post('/api/auth/logout', (req, res) => {

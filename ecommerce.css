@@ -714,3 +714,26 @@
     border-radius: 10px; padding: 18px;
     margin-bottom: 22px;
 }
+
+/* --- GOOGLE SIGN-IN MODAL --- */
+.google-auth-logo {
+    display: flex; justify-content: center; align-items: center;
+    width: 72px; height: 72px; border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    margin: 0 auto 20px;
+}
+
+#google-signin-btn-container {
+    /* Google renders its own button — just center it */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 44px;
+    margin-bottom: 20px;
+}
+
+/* Override GIS button background for dark theme */
+#google-signin-btn-container iframe {
+    border-radius: 6px !important;
+}

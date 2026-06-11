@@ -33,6 +33,7 @@
         setupEventListeners();
         syncAuthState();
         updateCartUI();
+        loadGoogleSignIn(); // Load real Google Identity Services
     });
 
     // --- TOAST NOTIFICATIONS ---
@@ -109,63 +110,39 @@
             document.body.appendChild(drawer);
         }
 
-        // 4. Auth Modal — Email/Password Only (clean, Amazon-style)
+        // 4. Auth Modal — Google Sign-In Only
         if (!document.getElementById('auth-modal')) {
             const authModal = document.createElement('div');
             authModal.id = 'auth-modal';
             authModal.className = 'kaava-modal';
+            authModal.style.maxWidth = '420px';
             authModal.innerHTML = `
-                <div class="modal-header">
-                    <div>
-                        <h2>Welcome to Kaava</h2>
-                        <p style="color:var(--text-muted); font-size:0.85rem; margin-top:4px; font-family:var(--font-body);">Sign in or create your account to continue</p>
-                    </div>
+                <div class="modal-header" style="border-bottom:none; padding-bottom:0;">
+                    <div></div>
                     <button class="cart-close" id="auth-close-btn">✕</button>
                 </div>
-                <div class="auth-tabs">
-                    <button class="auth-tab active" id="tab-login-btn">Sign In</button>
-                    <button class="auth-tab" id="tab-signup-btn">Create Account</button>
-                </div>
-                <div class="modal-body">
-                    <!-- Login Form -->
-                    <form class="auth-form active" id="login-form" autocomplete="on">
-                        <div class="input-group">
-                            <label>Email Address</label>
-                            <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email">
-                        </div>
-                        <div class="input-group">
-                            <label>Password</label>
-                            <input type="password" id="login-password" placeholder="Your password" required autocomplete="current-password">
-                        </div>
-                        <button type="submit" class="cta-btn" style="border:none; width:100%; margin-top:5px;">Sign In →</button>
-                        <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; margin-top:18px;">
-                            New to Kaava? <a href="#" id="switch-to-signup" style="color:var(--brand-gold); text-decoration:none; font-weight:bold;">Create an account</a>
-                        </p>
-                    </form>
-
-                    <!-- Signup Form -->
-                    <form class="auth-form" id="signup-form" autocomplete="on">
-                        <div class="input-group">
-                            <label>Full Name</label>
-                            <input type="text" id="signup-name" placeholder="Your full name" required autocomplete="name">
-                        </div>
-                        <div class="input-group">
-                            <label>Email Address</label>
-                            <input type="email" id="signup-email" placeholder="you@example.com" required autocomplete="email">
-                        </div>
-                        <div class="input-group">
-                            <label>Password</label>
-                            <input type="password" id="signup-password" placeholder="Min. 6 characters" required minlength="6" autocomplete="new-password">
-                        </div>
-                        <button type="submit" class="cta-btn" style="border:none; width:100%; margin-top:5px;">Create Account →</button>
-                        <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; margin-top:18px;">
-                            Already have an account? <a href="#" id="switch-to-login" style="color:var(--brand-gold); text-decoration:none; font-weight:bold;">Sign in</a>
-                        </p>
-                    </form>
+                <div class="modal-body" style="padding-top:10px; text-align:center;">
+                    <div class="google-auth-logo">
+                        <svg width="40" height="40" viewBox="0 0 48 48">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                        </svg>
+                    </div>
+                    <h2 style="font-size:1.6rem; margin-bottom:6px;">Sign in to Kaava</h2>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:28px; line-height:1.5;">
+                        Use your Google account to shop, track orders, and get delivery updates.
+                    </p>
+                    <div id="google-signin-btn-container" style="display:flex; justify-content:center; min-height:44px; margin-bottom:20px;"></div>
+                    <p style="color:var(--text-muted); font-size:0.75rem; line-height:1.5; padding: 0 10px;">
+                        By signing in, you agree to Kaava Nutrition's terms. Your Google profile (name &amp; email) will be used to manage your orders.
+                    </p>
                 </div>
             `;
             document.body.appendChild(authModal);
         }
+
 
         // 5. Checkout Modal — Multi-step Amazon style
         if (!document.getElementById('checkout-modal')) {
@@ -408,42 +385,6 @@
 
         // Cart checkout trigger
         document.getElementById('cart-checkout-btn').addEventListener('click', handleCheckoutTrigger);
-
-        // Auth tabs
-        const tabLogin = document.getElementById('tab-login-btn');
-        const tabSignup = document.getElementById('tab-signup-btn');
-        const formLogin = document.getElementById('login-form');
-        const formSignup = document.getElementById('signup-form');
-
-        function switchToLogin() {
-            tabLogin.classList.add('active'); tabSignup.classList.remove('active');
-            formLogin.classList.add('active'); formSignup.classList.remove('active');
-        }
-        function switchToSignup() {
-            tabSignup.classList.add('active'); tabLogin.classList.remove('active');
-            formSignup.classList.add('active'); formLogin.classList.remove('active');
-        }
-
-        tabLogin.addEventListener('click', switchToLogin);
-        tabSignup.addEventListener('click', switchToSignup);
-        document.getElementById('switch-to-signup').addEventListener('click', (e) => { e.preventDefault(); switchToSignup(); });
-        document.getElementById('switch-to-login').addEventListener('click', (e) => { e.preventDefault(); switchToLogin(); });
-
-        // Auth form submissions
-        formLogin.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            apiAuth('/api/auth/login', { email, password }, `Welcome back!`);
-        });
-
-        formSignup.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('signup-name').value;
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            apiAuth('/api/auth/signup', { name, email, password }, `Account created — welcome to Kaava!`);
-        });
 
         // Logout
         document.getElementById('logout-btn').addEventListener('click', handleLogout);
@@ -753,31 +694,98 @@
         });
     }
 
-    // --- AUTH FLOWS ---
-    function apiAuth(url, body, successMsg = 'Welcome to Kaava!') {
-        fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body)
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.error) { showToast(data.error, 'error'); return; }
-            state.token = data.token;
-            state.user = data.user;
-            localStorage.setItem('kaava_token', data.token);
-            showToast(successMsg, 'success');
-            syncAuthState();
-            closeAllOverlays();
+    // --- GOOGLE SIGN-IN (Real GIS) ---
+    function loadGoogleSignIn() {
+        // Fetch the Client ID from backend config
+        fetch('/api/config')
+            .then(r => r.json())
+            .then(cfg => {
+                const clientId = cfg.googleClientId;
+                if (!clientId) {
+                    // No Client ID set — show a setup notice inside the button container
+                    const container = document.getElementById('google-signin-btn-container');
+                    if (container) {
+                        container.innerHTML = `
+                            <div style="background:rgba(255,76,76,0.08); border:1px solid rgba(255,76,76,0.2); border-radius:8px; padding:14px 18px; font-size:0.82rem; color:#ff8080; text-align:left; line-height:1.6;">
+                                <strong>Google Sign-In not configured.</strong><br>
+                                Set <code style="background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:3px;">GOOGLE_CLIENT_ID</code> in the server environment to enable Google login.
+                            </div>`;
+                    }
+                    return;
+                }
 
-            // If user was trying to checkout, resume
-            if (document.getElementById('checkout-modal').dataset.pendingCheckout === 'true') {
-                delete document.getElementById('checkout-modal').dataset.pendingCheckout;
-                setTimeout(openCheckoutStep1, 400);
-                setTimeout(() => showModal('checkout-modal'), 450);
-            }
-        })
-        .catch(() => showToast('Authentication failed. Please try again.', 'error'));
+                // Load Google Identity Services script
+                const script = document.createElement('script');
+                script.src = 'https://accounts.google.com/gsi/client';
+                script.async = true;
+                script.defer = true;
+                script.onload = () => initGoogleButton(clientId);
+                document.head.appendChild(script);
+            })
+            .catch(err => console.error('Failed to load Google config:', err));
+    }
+
+    function initGoogleButton(clientId) {
+        if (typeof google === 'undefined' || !google.accounts) return;
+
+        // Expose callback globally so GIS can call it
+        window.handleGoogleCredential = function(response) {
+            const container = document.getElementById('google-signin-btn-container');
+            if (container) container.innerHTML = '<div style="color:var(--text-muted); font-size:0.9rem;">Signing you in...</div>';
+
+            fetch('/api/auth/google-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ credential: response.credential })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) {
+                    showToast(data.error, 'error');
+                    // Re-render button
+                    initGoogleButton(clientId);
+                    return;
+                }
+                state.token = data.token;
+                state.user = data.user;
+                localStorage.setItem('kaava_token', data.token);
+                showToast(`Welcome, ${data.user.name}! 👋`, 'success');
+                syncAuthState();
+                closeAllOverlays();
+
+                // Resume pending checkout if any
+                const checkoutModal = document.getElementById('checkout-modal');
+                if (checkoutModal && checkoutModal.dataset.pendingCheckout === 'true') {
+                    delete checkoutModal.dataset.pendingCheckout;
+                    setTimeout(openCheckoutStep1, 400);
+                    setTimeout(() => showModal('checkout-modal'), 450);
+                }
+            })
+            .catch(() => {
+                showToast('Sign-in failed. Please try again.', 'error');
+                initGoogleButton(clientId);
+            });
+        };
+
+        google.accounts.id.initialize({
+            client_id: clientId,
+            callback: window.handleGoogleCredential,
+            auto_select: false,
+            cancel_on_tap_outside: false
+        });
+
+        const container = document.getElementById('google-signin-btn-container');
+        if (container) {
+            google.accounts.id.renderButton(container, {
+                type: 'standard',
+                shape: 'rectangular',
+                theme: 'outline',
+                text: 'signin_with',
+                size: 'large',
+                logo_alignment: 'left',
+                width: 320
+            });
+        }
     }
 
     function handleLogout() {
