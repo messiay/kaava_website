@@ -1609,12 +1609,12 @@
             style="position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; z-index: 2147483647; display: flex; justify-content: center; align-items: center; pointer-events: none; padding-top: 80px; box-sizing: border-box;">
             <!-- Overlay -->
             <div class="modal-overlay" id="modal-overlay" onclick="closeCard()"
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.5s ease; pointer-events: auto;">
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); opacity: 0; transition: opacity 0.5s ease; pointer-events: none;">
             </div>
 
             <!-- Card -->
             <div class="expanded-card" id="expanded-card"
-                style="position: relative; width: 90vw; max-width: 1100px; height: 80vh; background: var(--bg-card); border: 1px solid var(--brand-gold); border-radius: 20px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; overflow: hidden; opacity: 0; visibility: hidden; transform: scale(0.9); transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); margin: 0; pointer-events: auto; box-shadow: 0 0 60px rgba(0,0,0,0.8);">
+                style="position: relative; width: 90vw; max-width: 1100px; height: 80vh; background: var(--bg-card); border: 1px solid var(--brand-gold); border-radius: 20px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; overflow: hidden; opacity: 0; visibility: hidden; transform: scale(0.9); transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1); margin: 0; pointer-events: none; box-shadow: 0 0 60px rgba(0,0,0,0.8);">
 
                 <div class="expanded-close" onclick="closeCard()">✕</div>
 
@@ -1686,6 +1686,7 @@
                 expandedCard.style.opacity = '1';
                 expandedCard.style.visibility = 'visible';
                 expandedCard.style.transform = 'scale(1)';
+                expandedCard.style.pointerEvents = 'auto';
 
                 document.body.classList.add('no-scroll');
             }
@@ -1699,6 +1700,7 @@
                 expandedCard.style.opacity = '0';
                 expandedCard.style.visibility = 'hidden';
                 expandedCard.style.transform = 'scale(0.9)';
+                expandedCard.style.pointerEvents = 'none';
 
                 document.body.classList.remove('no-scroll');
             }
