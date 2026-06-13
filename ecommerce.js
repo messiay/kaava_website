@@ -233,45 +233,51 @@
         }
     }
 
-    // 5. OVERRIDE TEXT/BUTTONS DYNAMICALLY FOR THE PAGE
+    // 5. OVERRIDE BUTTONS — remove onclick and wire direct event listeners inside closure
     function overridePageElements() {
-        // Change "ORDER NOW" card buttons to "ADD TO CART"
+        // Wire all static "ORDER NOW" buttons that have orderProduct in their onclick
         document.querySelectorAll('button').forEach(btn => {
-            const clickAttr = btn.getAttribute('onclick');
-            if (clickAttr && clickAttr.includes('orderProduct')) {
-                btn.textContent = 'ADD TO CART';
+            const clickAttr = btn.getAttribute('onclick') || '';
+            if (clickAttr.includes('orderProduct')) {
+                // Extract static product name e.g. orderProduct('AthletiBlend')
+                const match = clickAttr.match(/orderProduct\(\s*['"]([^'"]+)['"]\s*\)/);
+                if (match) {
+                    const productName = match[1];
+                    btn.removeAttribute('onclick');
+                    btn.textContent = 'ADD TO CART';
+                    btn.style.cursor = 'pointer';
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        addToCart(productName);
+                    });
+                }
             }
         });
 
-        // Monitor any new/dynamic buttons (e.g. inside detail modal overlays)
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach(mutation => {
-                mutation.addedNodes.forEach(node => {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        node.querySelectorAll('button').forEach(btn => {
-                            const clickAttr = btn.getAttribute('onclick');
-                            if (clickAttr && clickAttr.includes('orderProduct')) {
-                                btn.textContent = 'ADD TO CART';
-                            }
-                        });
-                        if (node.classList && node.classList.contains('expanded-card')) {
-                            const btn = node.querySelector('.cta-btn-premium');
-                            if (btn && btn.textContent.trim() === 'Order Now') {
-                                btn.textContent = 'ADD TO CART';
-                            }
+        // Wire the "Order Now" button inside the expanded product modal (dynamic title)
+        function wireModalBtn() {
+            document.querySelectorAll('.cta-btn-premium').forEach(btn => {
+                if (!btn.dataset.kaavaWired) {
+                    btn.dataset.kaavaWired = '1';
+                    btn.removeAttribute('onclick');
+                    btn.textContent = 'ADD TO CART';
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        const titleEl = document.getElementById('modal-title');
+                        if (titleEl) {
+                            addToCart(titleEl.innerText.trim());
                         }
-                    }
-                });
+                    });
+                }
             });
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
+        }
+        wireModalBtn();
 
-        // Update existing premium CTA button in product modals
-        document.querySelectorAll('.cta-btn-premium').forEach(btn => {
-            if (btn.textContent.trim() === 'Order Now') {
-                btn.textContent = 'ADD TO CART';
-            }
-        });
+        // Watch for the expanded-card modal being shown (it's always in DOM but we re-wire to be safe)
+        const observer = new MutationObserver(() => wireModalBtn());
+        observer.observe(document.body, { childList: true, subtree: true, attributes: true });
     }
 
     // 6. CART OPERATIONS
