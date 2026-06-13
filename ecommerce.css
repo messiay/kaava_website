@@ -696,3 +696,12 @@ body.light-mode .success-close-btn {
 .no-scroll {
     overflow: hidden !important;
 }
+
+/* Fix 3D Tilt click targets */
+.card-actions {
+    transform: translateZ(30px);
+    transform-style: preserve-3d;
+}
+.cta-btn-small, .card-link {
+    transform: translateZ(10px);
+}

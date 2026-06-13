@@ -246,10 +246,11 @@
                     btn.removeAttribute('onclick');
                     btn.textContent = 'ADD TO CART';
                     btn.style.cursor = 'pointer';
+                    btn.dataset.productName = productName;
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
                         e.preventDefault();
-                        addToCart(productName);
+                        addToCart(productName, btn);
                     });
                 }
             }
@@ -267,7 +268,7 @@
                         e.preventDefault();
                         const titleEl = document.getElementById('modal-title');
                         if (titleEl) {
-                            addToCart(titleEl.innerText.trim());
+                            addToCart(titleEl.innerText.trim(), btn);
                         }
                     });
                 }
@@ -281,30 +282,34 @@
     }
 
     // 6. CART OPERATIONS
-    function addToCart(productName) {
-        if (PRODUCTS[productName]) {
-            cart[productName] = (cart[productName] || 0) + 1;
+    function addToCart(productName, clickedBtn = null) {
+        let key = productName.trim();
+        // Robust case-insensitive check and substring fallback
+        if (!PRODUCTS[key]) {
+            const foundKey = Object.keys(PRODUCTS).find(k => k.toLowerCase() === key.toLowerCase());
+            if (foundKey) {
+                key = foundKey;
+            } else {
+                // Substring fallback
+                const partialKey = Object.keys(PRODUCTS).find(k => k.toLowerCase().includes(key.toLowerCase()) || key.toLowerCase().includes(k.toLowerCase()));
+                if (partialKey) {
+                    key = partialKey;
+                }
+            }
+        }
+
+        if (PRODUCTS[key]) {
+            cart[key] = (cart[key] || 0) + 1;
             saveCart();
             renderCart();
             openDrawer();
-            triggerButtonFeedback(productName);
+            triggerButtonFeedback(key, clickedBtn);
         }
     }
 
     // Global entry point called by page-level onclick handlers
     window.kaavaAddToCart = function (productName) {
-        let key = productName.trim();
-        // Map shorthand names
-        if (key === 'Nut Butters') key = 'Organic Nut Butters';
-        if (key === 'Muscle Repair') key = 'Deep Recovery Formula';
-
-        if (PRODUCTS[key]) {
-            addToCart(key);
-        } else {
-            // Substring match fallback
-            const foundKey = Object.keys(PRODUCTS).find(k => k.toLowerCase().includes(key.toLowerCase()));
-            if (foundKey) addToCart(foundKey);
-        }
+        addToCart(productName);
     };
 
     function removeFromCart(productName) {
@@ -313,6 +318,37 @@
             saveCart();
             renderCart();
         }
+    }
+
+    // Provide tactile feedback on buttons
+    function triggerButtonFeedback(productName, clickedBtn = null) {
+        let buttons = [];
+        if (clickedBtn) {
+            buttons.push(clickedBtn);
+        }
+        
+        document.querySelectorAll('button').forEach(btn => {
+            if (btn.dataset.productName === productName) {
+                buttons.push(btn);
+            }
+        });
+
+        // Unique buttons
+        buttons = [...new Set(buttons)];
+
+        buttons.forEach(btn => {
+            const prevText = btn.textContent;
+            btn.textContent = 'ADDED! ✓';
+            const prevBorderColor = btn.style.borderColor;
+            const prevColor = btn.style.color;
+            btn.style.borderColor = 'var(--brand-gold)';
+            btn.style.color = 'var(--brand-gold)';
+            setTimeout(() => {
+                btn.textContent = prevText;
+                btn.style.borderColor = prevBorderColor;
+                btn.style.color = prevColor;
+            }, 1500);
+        });
     }
 
     function updateQuantity(productName, delta) {
@@ -324,24 +360,6 @@
             saveCart();
             renderCart();
         }
-    }
-
-    // Provide tactile feedback on buttons
-    function triggerButtonFeedback(productName) {
-        document.querySelectorAll('button').forEach(btn => {
-            const clickAttr = btn.getAttribute('onclick');
-            if (clickAttr && clickAttr.includes(`'${productName}'`)) {
-                const prevText = btn.textContent;
-                btn.textContent = 'ADDED! ✓';
-                btn.style.borderColor = 'var(--brand-gold)';
-                btn.style.color = 'var(--brand-gold)';
-                setTimeout(() => {
-                    btn.textContent = prevText;
-                    btn.style.borderColor = '';
-                    btn.style.color = '';
-                }, 1500);
-            }
-        });
     }
 
     // 7. DRAWER INTERFACE TOGGLES
