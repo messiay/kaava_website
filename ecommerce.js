@@ -285,6 +285,22 @@
         }
     }
 
+    // Global entry point called by page-level onclick handlers
+    window.kaavaAddToCart = function (productName) {
+        let key = productName.trim();
+        // Map shorthand names
+        if (key === 'Nut Butters') key = 'Organic Nut Butters';
+        if (key === 'Muscle Repair') key = 'Deep Recovery Formula';
+
+        if (PRODUCTS[key]) {
+            addToCart(key);
+        } else {
+            // Substring match fallback
+            const foundKey = Object.keys(PRODUCTS).find(k => k.toLowerCase().includes(key.toLowerCase()));
+            if (foundKey) addToCart(foundKey);
+        }
+    };
+
     function removeFromCart(productName) {
         if (cart[productName]) {
             delete cart[productName];

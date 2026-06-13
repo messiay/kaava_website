@@ -570,7 +570,12 @@
         }
 
         function orderProduct(productName) {
-            window.location.href = 'about.html?product=' + encodeURIComponent(productName) + '#contact';
+            // Close the product modal if open
+            if (typeof closeCard === 'function') closeCard();
+            // Delegate to the global cart system defined in ecommerce.js
+            if (typeof kaavaAddToCart === 'function') {
+                kaavaAddToCart(productName);
+            }
         }
 
         // 3D TILT
