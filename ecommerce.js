@@ -49,7 +49,7 @@
     }
 
     // 3. INITIALIZATION
-    document.addEventListener('DOMContentLoaded', () => {
+    function init() {
         loadCart();
         injectUIElements();
         overridePageElements();
@@ -73,7 +73,13 @@
                 }
             }
         };
-    });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 
     // 4. INJECT HTML ELEMENTS (CART DRAWER, CHECKOUT MODAL & NAV BUTTON)
     function injectUIElements() {
