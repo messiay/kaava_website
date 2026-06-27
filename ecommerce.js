@@ -6,22 +6,22 @@
     // 1. PRODUCT DATABASE
     const PRODUCTS = {
         'AthletiBlend': {
-            price: 899,
+            price: 450,
             image: 'AthletiBlend.jpg',
             displayName: 'AthletiBlend'
         },
         'Organic Nut Butters': {
-            price: 499,
+            price: 550,
             image: 'nut butter.jpg',
             displayName: 'Organic Nut Butters'
         },
         'Deep Recovery Formula': {
-            price: 1299,
+            price: 350,
             image: 'sleepnig pills.jpg',
             displayName: 'Deep Recovery Formula'
         },
         'Daily Nourish Mix': {
-            price: 799,
+            price: 350,
             image: 'Nourish mix.jpg',
             displayName: 'Daily Nourish Mix'
         }
@@ -385,8 +385,8 @@
             const total = item.price * qty;
             subtotal += total;
             summaryHTML += `
-                <div style="display:flex; justify-content:space-between; margin-bottom: 4px;">
-                    <span>${item.displayName} (×${qty})</span>
+                <div style="display:flex; justify-content:space-between; margin-bottom: 6px; font-family: var(--font-body); font-size: 0.95rem;">
+                    <span>${item.displayName} (×${qty}) <small style="opacity: 0.6; margin-left: 6px;">@ ₹${item.price} each</small></span>
                     <span>₹${total}</span>
                 </div>
             `;
@@ -568,7 +568,7 @@
             const qty = cart[nameKey];
             const total = item.price * qty;
             subtotal += total;
-            itemsListText += `• ${item.displayName} × ${qty} = ₹${total}\n`;
+            itemsListText += `• ${item.displayName} (Qty: ${qty}) @ ₹${item.price} each = ₹${total}\n`;
         });
 
         const formattedMessage = `

@@ -705,3 +705,83 @@ body.light-mode .success-close-btn {
 .cta-btn-small, .card-link {
     transform: translateZ(10px);
 }
+
+/* --- PRICING DISPLAY & ANIMATED SLASH STYLES --- */
+.price-display {
+    font-family: var(--font-body);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: auto;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    transform: translateZ(20px);
+}
+
+.original-price {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    font-weight: normal;
+    text-decoration: none; /* custom slash override */
+    position: relative;
+    opacity: 0.65;
+    display: inline-block;
+}
+
+.original-price::after {
+    content: '';
+    position: absolute;
+    left: -2px;
+    top: 50%;
+    width: 0;
+    height: 2px;
+    background: #ff4c4c; /* Vibrant Red */
+    transform: rotate(-12deg);
+    transform-origin: left center;
+    animation: drawSlash 0.8s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+    animation-delay: 0.5s;
+}
+
+@keyframes drawSlash {
+    from {
+        width: 0;
+    }
+    to {
+        width: calc(100% + 4px);
+    }
+}
+
+.discounted-price {
+    font-size: 1.25rem;
+    color: var(--brand-gold);
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(254, 157, 0, 0.15);
+}
+
+.price-qty {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: normal;
+}
+
+.out-of-stock-badge {
+    font-size: 0.75rem;
+    background: rgba(255, 76, 76, 0.12);
+    color: #ff4c4c;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: 1px solid rgba(255, 76, 76, 0.25);
+    margin-left: 5px;
+}
+
+/* Hover effect on card pricing */
+.card:hover .discounted-price {
+    transform: scale(1.05);
+    transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
