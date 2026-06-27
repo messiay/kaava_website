@@ -950,6 +950,10 @@ PAYMENT STATUS: Paid via UPI (Receipt screenshot attached)
         params.append('name', name);
         params.append('email', email);
         params.append('phone', phone);
+        params.append('address', address);
+        params.append('city', city);
+        params.append('state', stateName);
+        params.append('pin', pin);
         params.append('message', formattedMessage);
         
         if (paymentScreenshotBase64) {
