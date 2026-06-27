@@ -944,7 +944,7 @@ PAYMENT STATUS: Paid via UPI (Receipt screenshot attached)
         }
 
         // 3. Send AJAX Request to Google Apps Script Endpoint
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby4fB3tE-yGvXFb99-7uK5TBOkuPXAebnkXayMCS9_2K5IBX5nvLJaryJ_z3OiSFF9qtw/exec';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbytXNwb2IOj3FsZOVnPOiZ1yG94QA8xzGFXtjcWTGgvzg4DdNCbOpkkeVPVFhNSAizt/exec';
         
         const params = new URLSearchParams();
         params.append('name', name);
