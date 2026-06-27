@@ -785,3 +785,214 @@ body.light-mode .success-close-btn {
     transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+/* ==========================================================================
+   CHECKOUT PAYMENT STEP UI STYLES
+   ========================================================================== */
+.payment-view-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    animation: fadeInSlide 0.4s ease-out;
+}
+
+@keyframes fadeInSlide {
+    from {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.payment-title-box {
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.payment-title-box h4 {
+    font-family: var(--font-head);
+    font-size: 1.4rem;
+    color: var(--brand-gold);
+    margin-bottom: 6px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.payment-title-box p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.payment-amount-highlight {
+    font-family: var(--font-head);
+    font-size: 1.8rem;
+    color: var(--text-main);
+    background: rgba(254, 157, 0, 0.1);
+    border: 1px solid rgba(254, 157, 0, 0.25);
+    padding: 8px 24px;
+    border-radius: 50px;
+    margin: 10px 0;
+    text-shadow: 0 0 15px rgba(254, 157, 0, 0.3);
+}
+
+.payment-qr-container {
+    background: #ffffff;
+    padding: 16px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border: 3px solid var(--brand-gold);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: 260px;
+    transition: transform 0.3s ease;
+}
+
+.payment-qr-container:hover {
+    transform: scale(1.03);
+}
+
+.payment-qr-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 4px;
+}
+
+/* Styled File Upload Zone */
+.payment-upload-zone {
+    width: 100%;
+    border: 2px dashed rgba(254, 157, 0, 0.3);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+}
+
+.payment-upload-zone:hover,
+.payment-upload-zone.dragover {
+    border-color: var(--brand-gold);
+    background: rgba(254, 157, 0, 0.05);
+}
+
+.upload-icon {
+    width: 44px;
+    height: 44px;
+    color: var(--brand-blue);
+    margin-bottom: 5px;
+    transition: transform 0.3s ease;
+}
+
+.payment-upload-zone:hover .upload-icon {
+    transform: translateY(-4px) scale(1.05);
+}
+
+.upload-text-primary {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-main);
+}
+
+.upload-text-secondary {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Upload Preview Panel */
+.screenshot-preview-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.screenshot-preview-container {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--card-border);
+    max-width: 100%;
+    max-height: 180px;
+    box-shadow: var(--shadow-soft);
+    display: none; /* Injected dynamically */
+}
+
+.screenshot-preview-container img {
+    max-width: 100%;
+    max-height: 180px;
+    object-fit: contain;
+    display: block;
+}
+
+.screenshot-remove-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255, 76, 76, 0.95);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    transition: background 0.2s, transform 0.2s;
+}
+
+.screenshot-remove-btn:hover {
+    background: #ff3333;
+    transform: scale(1.1);
+}
+
+.uploaded-filename-badge {
+    background: rgba(41, 182, 246, 0.1);
+    border: 1px solid rgba(41, 182, 246, 0.3);
+    color: var(--brand-blue);
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+    word-break: break-all;
+    max-width: 90%;
+    text-align: center;
+}
+
+/* Submitting and Buttons styling adjustments */
+.checkout-back-btn {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    padding: 14px 28px;
+    font-family: var(--font-head);
+    font-size: 1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.checkout-back-btn:hover {
+    color: var(--text-main);
+    border-color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+

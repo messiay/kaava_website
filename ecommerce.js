@@ -29,6 +29,9 @@
 
     // 2. STATE MANAGEMENT (LOCAL STORAGE PERSISTED)
     let cart = {};
+    let isPaymentStep = false;
+    let paymentScreenshotBase64 = '';
+    let paymentScreenshotName = '';
 
     function loadCart() {
         try {
@@ -158,60 +161,97 @@
                             <button class="cart-close-btn" id="checkout-close-btn" aria-label="Close Form">✕</button>
                         </div>
                         <div class="checkout-form-body" id="checkout-modal-content">
-                            <form id="kaava-checkout-form">
-                                <div class="checkout-summary-box">
-                                    <div class="checkout-summary-title">Order Summary</div>
-                                    <div class="checkout-summary-items" id="checkout-items-summary">
-                                        <!-- Injected Dynamically -->
+                            <div id="checkout-details-view">
+                                <form id="kaava-checkout-form">
+                                    <div class="checkout-summary-box">
+                                        <div class="checkout-summary-title">Order Summary</div>
+                                        <div class="checkout-summary-items" id="checkout-items-summary">
+                                            <!-- Injected Dynamically -->
+                                        </div>
+                                        <div class="checkout-summary-total">
+                                            <span>Total Amount</span>
+                                            <span id="checkout-total-val">₹0</span>
+                                        </div>
                                     </div>
-                                    <div class="checkout-summary-total">
-                                        <span>Total Amount</span>
-                                        <span id="checkout-total-val">₹0</span>
-                                    </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label for="checkout-name">Full Name *</label>
-                                    <input type="text" id="checkout-name" required placeholder="Enter your full name">
-                                </div>
-
-                                <div class="form-row">
                                     <div class="form-group">
-                                        <label for="checkout-email">Email Address *</label>
-                                        <input type="email" id="checkout-email" required placeholder="name@example.com">
+                                        <label for="checkout-name">Full Name *</label>
+                                        <input type="text" id="checkout-name" required placeholder="Enter your full name">
                                     </div>
-                                    <div class="form-group">
-                                        <label for="checkout-phone">Phone Number *</label>
-                                        <input type="tel" id="checkout-phone" required placeholder="10-digit mobile number">
-                                    </div>
-                                </div>
 
-                                <div class="form-group">
-                                    <label for="checkout-address">Delivery Address *</label>
-                                    <textarea id="checkout-address" rows="3" required placeholder="Flat/House No, Building, Street name, Area"></textarea>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="checkout-city">City *</label>
-                                        <input type="text" id="checkout-city" required placeholder="Bengaluru">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="checkout-email">Email Address *</label>
+                                            <input type="email" id="checkout-email" required placeholder="name@example.com">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="checkout-phone">Phone Number *</label>
+                                            <input type="tel" id="checkout-phone" required placeholder="10-digit mobile number">
+                                        </div>
                                     </div>
+
                                     <div class="form-group">
-                                        <label for="checkout-state">State *</label>
-                                        <input type="text" id="checkout-state" required placeholder="Karnataka">
+                                        <label for="checkout-address">Delivery Address *</label>
+                                        <textarea id="checkout-address" rows="3" required placeholder="Flat/House No, Building, Street name, Area"></textarea>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="checkout-city">City *</label>
+                                            <input type="text" id="checkout-city" required placeholder="Bengaluru">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="checkout-state">State *</label>
+                                            <input type="text" id="checkout-state" required placeholder="Karnataka">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="checkout-pin">PIN Code *</label>
+                                        <input type="text" id="checkout-pin" required pattern="^[0-9]{6}$" title="Enter a valid 6-digit PIN code" placeholder="560001">
+                                    </div>
+                                </form>
+                            </div>
+                            <div id="checkout-payment-view" style="display:none;">
+                                <div class="payment-view-container">
+                                    <div class="payment-title-box">
+                                        <h4>Scan & Pay</h4>
+                                        <p>Scan the QR code below using any UPI app (GPay, PhonePe, Paytm, BHIM) to pay for your order.</p>
+                                    </div>
+                                    <div class="payment-amount-highlight" id="payment-amount-val">
+                                        ₹0
+                                    </div>
+                                    <div class="payment-qr-container">
+                                        <img src="payment%20qr%20code/WhatsApp%20Image%202026-06-27%20at%201.47.11%20PM.jpeg" alt="Kaava Nutrition Payment QR Code" class="payment-qr-image">
+                                    </div>
+                                    <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                                        <label style="font-family: var(--font-body); font-weight: 700; font-size: 0.75rem; color: var(--brand-blue); letter-spacing: 1px; text-transform: uppercase;">Upload Payment Screenshot *</label>
+                                        <div class="payment-upload-zone" id="payment-upload-zone">
+                                            <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                                <polyline points="17 8 12 3 7 8"></polyline>
+                                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                                            </svg>
+                                            <span class="upload-text-primary">Click to upload receipt screenshot</span>
+                                            <span class="upload-text-secondary">Supports JPG, JPEG, PNG, WEBP</span>
+                                            <input type="file" id="payment-screenshot-input" accept="image/*" style="display: none;">
+                                        </div>
+                                        <div class="screenshot-preview-wrapper" id="screenshot-preview-wrapper">
+                                            <div class="screenshot-preview-container" id="screenshot-preview-container">
+                                                <img id="screenshot-preview-img" src="" alt="Screenshot Preview">
+                                                <button type="button" class="screenshot-remove-btn" id="screenshot-remove-btn" title="Remove Screenshot">✕</button>
+                                            </div>
+                                            <div class="uploaded-filename-badge" id="uploaded-filename-badge" style="display: none;"></div>
+                                        </div>
                                     </div>
                                 </div>
-
-                                <div class="form-group">
-                                    <label for="checkout-pin">PIN Code *</label>
-                                    <input type="text" id="checkout-pin" required pattern="^[0-9]{6}$" title="Enter a valid 6-digit PIN code" placeholder="560001">
-                                </div>
-                            </form>
+                            </div>
                         </div>
                         <div class="checkout-actions" id="checkout-modal-footer">
+                            <button class="checkout-back-btn" id="checkout-back-btn" style="display:none; margin-right: auto;">BACK TO DETAILS</button>
                             <button class="checkout-cancel-btn" id="checkout-cancel-btn">CANCEL</button>
                             <button class="checkout-submit-btn" id="checkout-confirm-btn" type="submit" form="kaava-checkout-form">
-                                CONFIRM ORDER
+                                PROCEED TO PAYMENT
                             </button>
                         </div>
                     </div>
@@ -230,6 +270,59 @@
 
             // Handle checkout form submit
             document.getElementById('kaava-checkout-form').addEventListener('submit', handleCheckoutSubmit);
+
+            // Wire Payment specific event listeners
+            const uploadZone = document.getElementById('payment-upload-zone');
+            const fileInput = document.getElementById('payment-screenshot-input');
+            const removeBtn = document.getElementById('screenshot-remove-btn');
+            const backBtn = document.getElementById('checkout-back-btn');
+            const confirmBtn = document.getElementById('checkout-confirm-btn');
+
+            if (uploadZone && fileInput) {
+                uploadZone.addEventListener('click', () => fileInput.click());
+
+                // Drag & Drop event bindings
+                uploadZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    uploadZone.classList.add('dragover');
+                });
+                uploadZone.addEventListener('dragleave', () => {
+                    uploadZone.classList.remove('dragover');
+                });
+                uploadZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    uploadZone.classList.remove('dragover');
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                        handleScreenshotSelect(e.dataTransfer.files[0]);
+                    }
+                });
+
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target.files && e.target.files[0]) {
+                        handleScreenshotSelect(e.target.files[0]);
+                    }
+                });
+            }
+
+            if (removeBtn) {
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    removeScreenshot();
+                });
+            }
+
+            if (backBtn) {
+                backBtn.addEventListener('click', handleBackToDetails);
+            }
+
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', (e) => {
+                    if (isPaymentStep) {
+                        e.preventDefault();
+                        submitOrderWithPayment();
+                    }
+                });
+            }
         }
     }
 
@@ -374,6 +467,42 @@
     }
 
     function openCheckoutModal() {
+        // Reset state
+        isPaymentStep = false;
+        paymentScreenshotBase64 = '';
+        paymentScreenshotName = '';
+
+        // Reset view visibility
+        const detailsView = document.getElementById('checkout-details-view');
+        const paymentView = document.getElementById('checkout-payment-view');
+        const backBtn = document.getElementById('checkout-back-btn');
+        const cancelBtn = document.getElementById('checkout-cancel-btn');
+        const confirmBtn = document.getElementById('checkout-confirm-btn');
+
+        if (detailsView) detailsView.style.display = 'block';
+        if (paymentView) paymentView.style.display = 'none';
+        if (backBtn) backBtn.style.display = 'none';
+        if (cancelBtn) cancelBtn.style.display = 'inline-block';
+        if (confirmBtn) {
+            confirmBtn.innerHTML = 'PROCEED TO PAYMENT';
+            confirmBtn.disabled = false;
+            confirmBtn.setAttribute('form', 'kaava-checkout-form');
+            confirmBtn.setAttribute('type', 'submit');
+        }
+
+        // Reset screenshot UI elements
+        const previewImg = document.getElementById('screenshot-preview-img');
+        const previewContainer = document.getElementById('screenshot-preview-container');
+        const filenameBadge = document.getElementById('uploaded-filename-badge');
+        const fileInput = document.getElementById('payment-screenshot-input');
+        if (previewImg) previewImg.src = '';
+        if (previewContainer) previewContainer.style.display = 'none';
+        if (filenameBadge) {
+            filenameBadge.textContent = '';
+            filenameBadge.style.display = 'none';
+        }
+        if (fileInput) fileInput.value = '';
+
         // Render checkout item summary
         const container = document.getElementById('checkout-items-summary');
         let subtotal = 0;
@@ -392,8 +521,13 @@
             `;
         });
 
-        container.innerHTML = summaryHTML || '<div>No items in cart</div>';
-        document.getElementById('checkout-total-val').textContent = `₹${subtotal}`;
+        if (container) {
+            container.innerHTML = summaryHTML || '<div>No items in cart</div>';
+        }
+        const totalValEl = document.getElementById('checkout-total-val');
+        if (totalValEl) {
+            totalValEl.textContent = `₹${subtotal}`;
+        }
 
         document.getElementById('checkout-modal-overlay').classList.add('open');
         document.body.classList.add('no-scroll');
@@ -408,61 +542,230 @@
             const body = document.getElementById('checkout-modal-content');
             const footer = document.getElementById('checkout-modal-footer');
             body.innerHTML = `
-                <form id="kaava-checkout-form">
-                    <div class="checkout-summary-box">
-                        <div class="checkout-summary-title">Order Summary</div>
-                        <div class="checkout-summary-items" id="checkout-items-summary">
-                            <!-- Injected Dynamically -->
+                <div id="checkout-details-view">
+                    <form id="kaava-checkout-form">
+                        <div class="checkout-summary-box">
+                            <div class="checkout-summary-title">Order Summary</div>
+                            <div class="checkout-summary-items" id="checkout-items-summary">
+                                <!-- Injected Dynamically -->
+                            </div>
+                            <div class="checkout-summary-total">
+                                <span>Total Amount</span>
+                                <span id="checkout-total-val">₹0</span>
+                            </div>
                         </div>
-                        <div class="checkout-summary-total">
-                            <span>Total Amount</span>
-                            <span id="checkout-total-val">₹0</span>
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="checkout-name">Full Name *</label>
-                        <input type="text" id="checkout-name" required placeholder="Enter your full name">
-                    </div>
-
-                    <div class="form-row">
                         <div class="form-group">
-                            <label for="checkout-email">Email Address *</label>
-                            <input type="email" id="checkout-email" required placeholder="name@example.com">
+                            <label for="checkout-name">Full Name *</label>
+                            <input type="text" id="checkout-name" required placeholder="Enter your full name">
                         </div>
-                        <div class="form-group">
-                            <label for="checkout-phone">Phone Number *</label>
-                            <input type="tel" id="checkout-phone" required placeholder="10-digit mobile number">
-                        </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="checkout-address">Delivery Address *</label>
-                        <textarea id="checkout-address" rows="3" required placeholder="Flat/House No, Building, Street name, Area"></textarea>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="checkout-city">City *</label>
-                            <input type="text" id="checkout-city" required placeholder="Bengaluru">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="checkout-email">Email Address *</label>
+                                <input type="email" id="checkout-email" required placeholder="name@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="checkout-phone">Phone Number *</label>
+                                <input type="tel" id="checkout-phone" required placeholder="10-digit mobile number">
+                            </div>
                         </div>
+
                         <div class="form-group">
-                            <label for="checkout-state">State *</label>
-                            <input type="text" id="checkout-state" required placeholder="Karnataka">
+                            <label for="checkout-address">Delivery Address *</label>
+                            <textarea id="checkout-address" rows="3" required placeholder="Flat/House No, Building, Street name, Area"></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="checkout-city">City *</label>
+                                <input type="text" id="checkout-city" required placeholder="Bengaluru">
+                            </div>
+                            <div class="form-group">
+                                <label for="checkout-state">State *</label>
+                                <input type="text" id="checkout-state" required placeholder="Karnataka">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="checkout-pin">PIN Code *</label>
+                            <input type="text" id="checkout-pin" required pattern="^[0-9]{6}$" title="Enter a valid 6-digit PIN code" placeholder="560001">
+                        </div>
+                    </form>
+                </div>
+                <div id="checkout-payment-view" style="display:none;">
+                    <div class="payment-view-container">
+                        <div class="payment-title-box">
+                            <h4>Scan & Pay</h4>
+                            <p>Scan the QR code below using any UPI app (GPay, PhonePe, Paytm, BHIM) to pay for your order.</p>
+                        </div>
+                        <div class="payment-amount-highlight" id="payment-amount-val">
+                            ₹0
+                        </div>
+                        <div class="payment-qr-container">
+                            <img src="payment%20qr%20code/WhatsApp%20Image%202026-06-27%20at%201.47.11%20PM.jpeg" alt="Kaava Nutrition Payment QR Code" class="payment-qr-image">
+                        </div>
+                        <div style="width: 100%; display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+                            <label style="font-family: var(--font-body); font-weight: 700; font-size: 0.75rem; color: var(--brand-blue); letter-spacing: 1px; text-transform: uppercase;">Upload Payment Screenshot *</label>
+                            <div class="payment-upload-zone" id="payment-upload-zone">
+                                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                <span class="upload-text-primary">Click to upload receipt screenshot</span>
+                                <span class="upload-text-secondary">Supports JPG, JPEG, PNG, WEBP</span>
+                                <input type="file" id="payment-screenshot-input" accept="image/*" style="display: none;">
+                            </div>
+                            <div class="screenshot-preview-wrapper" id="screenshot-preview-wrapper">
+                                <div class="screenshot-preview-container" id="screenshot-preview-container">
+                                    <img id="screenshot-preview-img" src="" alt="Screenshot Preview">
+                                    <button type="button" class="screenshot-remove-btn" id="screenshot-remove-btn" title="Remove Screenshot">✕</button>
+                                </div>
+                                <div class="uploaded-filename-badge" id="uploaded-filename-badge" style="display: none;"></div>
+                            </div>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="checkout-pin">PIN Code *</label>
-                        <input type="text" id="checkout-pin" required pattern="^[0-9]{6}$" title="Enter a valid 6-digit PIN code" placeholder="560001">
-                    </div>
-                </form>
+                </div>
             `;
             footer.style.display = 'flex';
 
-            // Re-attach listener
-            document.getElementById('kaava-checkout-form').addEventListener('submit', handleCheckoutSubmit);
+            // Reset footer button states to Details View
+            const backBtn = document.getElementById('checkout-back-btn');
+            const cancelBtn = document.getElementById('checkout-cancel-btn');
+            const confirmBtn = document.getElementById('checkout-confirm-btn');
+            if (backBtn) backBtn.style.display = 'none';
+            if (cancelBtn) cancelBtn.style.display = 'inline-block';
+            if (confirmBtn) {
+                confirmBtn.innerHTML = 'PROCEED TO PAYMENT';
+                confirmBtn.disabled = false;
+                confirmBtn.setAttribute('form', 'kaava-checkout-form');
+                confirmBtn.setAttribute('type', 'submit');
+            }
+
+            // Re-bind all dynamic elements inside content area
+            bindPaymentEvents();
         }, 300);
+    }
+
+    function bindPaymentEvents() {
+        const uploadZone = document.getElementById('payment-upload-zone');
+        const fileInput = document.getElementById('payment-screenshot-input');
+        const removeBtn = document.getElementById('screenshot-remove-btn');
+        const backBtn = document.getElementById('checkout-back-btn');
+        const formEl = document.getElementById('kaava-checkout-form');
+
+        if (formEl) {
+            formEl.addEventListener('submit', handleCheckoutSubmit);
+        }
+
+        if (uploadZone && fileInput) {
+            uploadZone.addEventListener('click', () => fileInput.click());
+
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('dragover');
+            });
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    handleScreenshotSelect(e.dataTransfer.files[0]);
+                }
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    handleScreenshotSelect(e.target.files[0]);
+                }
+            });
+        }
+
+        if (removeBtn) {
+            removeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                removeScreenshot();
+            });
+        }
+    }
+
+    function handleScreenshotSelect(file) {
+        if (!file) return;
+        
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file (PNG, JPG, JPEG, WEBP).');
+            return;
+        }
+
+        paymentScreenshotName = file.name;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            paymentScreenshotBase64 = e.target.result;
+            
+            const previewImg = document.getElementById('screenshot-preview-img');
+            const previewContainer = document.getElementById('screenshot-preview-container');
+            const filenameBadge = document.getElementById('uploaded-filename-badge');
+            
+            if (previewImg && previewContainer && filenameBadge) {
+                previewImg.src = paymentScreenshotBase64;
+                previewContainer.style.display = 'block';
+                filenameBadge.textContent = file.name;
+                filenameBadge.style.display = 'inline-block';
+            }
+            
+            const confirmBtn = document.getElementById('checkout-confirm-btn');
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function removeScreenshot() {
+        paymentScreenshotBase64 = '';
+        paymentScreenshotName = '';
+        
+        const previewImg = document.getElementById('screenshot-preview-img');
+        const previewContainer = document.getElementById('screenshot-preview-container');
+        const filenameBadge = document.getElementById('uploaded-filename-badge');
+        const fileInput = document.getElementById('payment-screenshot-input');
+        
+        if (previewImg) previewImg.src = '';
+        if (previewContainer) previewContainer.style.display = 'none';
+        if (filenameBadge) {
+            filenameBadge.textContent = '';
+            filenameBadge.style.display = 'none';
+        }
+        if (fileInput) fileInput.value = '';
+        
+        const confirmBtn = document.getElementById('checkout-confirm-btn');
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+        }
+    }
+
+    function handleBackToDetails() {
+        isPaymentStep = false;
+        
+        document.getElementById('checkout-payment-view').style.display = 'none';
+        document.getElementById('checkout-details-view').style.display = 'block';
+        
+        const backBtn = document.getElementById('checkout-back-btn');
+        const cancelBtn = document.getElementById('checkout-cancel-btn');
+        const confirmBtn = document.getElementById('checkout-confirm-btn');
+        
+        if (backBtn) backBtn.style.display = 'none';
+        if (cancelBtn) cancelBtn.style.display = 'inline-block';
+        if (confirmBtn) {
+            confirmBtn.innerHTML = 'PROCEED TO PAYMENT';
+            confirmBtn.disabled = false;
+            confirmBtn.setAttribute('form', 'kaava-checkout-form');
+            confirmBtn.setAttribute('type', 'submit');
+        }
     }
 
     // 8. RENDER SHOPPING CART CONTENTS
@@ -551,6 +854,43 @@
     function handleCheckoutSubmit(e) {
         e.preventDefault();
 
+        // Perform calculation of total
+        let subtotal = 0;
+        Object.keys(cart).forEach(nameKey => {
+            const item = PRODUCTS[nameKey];
+            const qty = cart[nameKey];
+            subtotal += item.price * qty;
+        });
+
+        // Set amount highlighted in UPI view
+        const paymentAmountVal = document.getElementById('payment-amount-val');
+        if (paymentAmountVal) {
+            paymentAmountVal.textContent = `₹${subtotal}`;
+        }
+
+        // Hide Details View, Show Payment View
+        document.getElementById('checkout-details-view').style.display = 'none';
+        document.getElementById('checkout-payment-view').style.display = 'block';
+
+        isPaymentStep = true;
+
+        // Toggle footer buttons
+        const backBtn = document.getElementById('checkout-back-btn');
+        const cancelBtn = document.getElementById('checkout-cancel-btn');
+        const confirmBtn = document.getElementById('checkout-confirm-btn');
+
+        if (backBtn) backBtn.style.display = 'inline-block';
+        if (cancelBtn) cancelBtn.style.display = 'none';
+        if (confirmBtn) {
+            confirmBtn.innerHTML = 'COMPLETE ORDER';
+            confirmBtn.removeAttribute('form');
+            confirmBtn.setAttribute('type', 'button');
+            // Disable until screenshot is uploaded
+            confirmBtn.disabled = !paymentScreenshotBase64;
+        }
+    }
+
+    function submitOrderWithPayment() {
         const name = document.getElementById('checkout-name').value.trim();
         const email = document.getElementById('checkout-email').value.trim();
         const phone = document.getElementById('checkout-phone').value.trim();
@@ -588,14 +928,20 @@ ${city}, ${stateName} - ${pin}
 ITEMS ORDERED:
 ${itemsListText}
 GRAND TOTAL: ₹${subtotal}
+PAYMENT STATUS: Paid via UPI (Receipt screenshot attached)
 =========================================
         `;
 
         // 2. Disable Inputs and Show Spinning Loader
         const confirmBtn = document.getElementById('checkout-confirm-btn');
-        const originalBtnText = confirmBtn.innerHTML;
-        confirmBtn.disabled = true;
-        confirmBtn.innerHTML = `<span class="spinner"></span> SENDING ORDER...`;
+        const backBtn = document.getElementById('checkout-back-btn');
+        if (confirmBtn) {
+            confirmBtn.disabled = true;
+            confirmBtn.innerHTML = `<span class="spinner"></span> SENDING ORDER...`;
+        }
+        if (backBtn) {
+            backBtn.disabled = true;
+        }
 
         // 3. Send AJAX Request to Google Apps Script Endpoint
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyhhVC-6zx8lMztUfPdX3cmkmipYhtSUPKGiLMup97akoPjv6qIgDSgtz8f4EzMw3zMiA/exec';
@@ -605,17 +951,18 @@ GRAND TOTAL: ₹${subtotal}
         params.append('email', email);
         params.append('phone', phone);
         params.append('message', formattedMessage);
+        
+        if (paymentScreenshotBase64) {
+            params.append('screenshot', paymentScreenshotBase64);
+            params.append('screenshotName', paymentScreenshotName);
+        }
 
         fetch(SCRIPT_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: params.toString()
         })
-        .then(response => {
-            // Note: Google Apps Script redirection sometimes prevents standard JSON responses
-            // but the HTTP status is usually 200 or we can check response.ok. We resolve safely:
-            return response.text();
-        })
+        .then(response => response.text())
         .then(() => {
             // Success State Transition
             showOrderSuccessScreen(name);
@@ -623,16 +970,22 @@ GRAND TOTAL: ₹${subtotal}
             cart = {};
             saveCart();
             renderCart();
+            
+            isPaymentStep = false;
+            paymentScreenshotBase64 = '';
+            paymentScreenshotName = '';
         })
         .catch(err => {
             console.error('Order submission error:', err);
-            // Even if a CORS/redirection error occurs, Apps Script usually processes the POST correctly.
-            // However, to be perfectly safe, we still assume success and notify user, or fallback.
-            // Let's treat it as successful if we got connection, but alert admin console.
+            // Treat as success fallback to notify user
             showOrderSuccessScreen(name);
             cart = {};
             saveCart();
             renderCart();
+            
+            isPaymentStep = false;
+            paymentScreenshotBase64 = '';
+            paymentScreenshotName = '';
         });
     }
 
